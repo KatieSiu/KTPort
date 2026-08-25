@@ -7,6 +7,7 @@ This is one merged Next.js app for the two interview prototypes.
 - `/` - basic prototype index page
 - `/ctv` - CTV prototype
 - `/campaign-planner` - Campaign Planner prototype
+- `/intelligence` - standalone Intelligence project (see below)
 
 ## Quick Start
 
@@ -18,10 +19,22 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Project Layout
 
-- `app/` - Next.js routes, including `/ctv` and `/campaign-planner`
+- `app/` - Next.js routes, including `/ctv`, `/campaign-planner`, and `/intelligence`
 - `features/ctv/` - CTV prototype components and helpers
 - `features/campaign-planner/` - Campaign Planner prototype components, hooks, and helpers
+- `features/intelligence/` - Intelligence project components, tokens, and helpers
 - `public/` - static prototype assets
+
+## Intelligence
+
+`app/intelligence/` and `features/intelligence/` are a brand new, standalone project that started
+as a branch off this repo. It does not import from, or depend on, any of the katiesiu portfolio
+code (`app/page.tsx`, `app/ctv`, `app/campaign-planner`, `features/ctv`, `features/campaign-planner`,
+`features/design-system`) — it's a clean slate.
+
+Design tokens live in `features/intelligence/tokens.ts` and are currently empty placeholders. They
+get populated once a resource (Figma frame, file, etc.) is provided — see
+`.cursor/rules/intelligence-design-system-adherence.mdc` for the rule that governs this.
 
 ## Scripts
 

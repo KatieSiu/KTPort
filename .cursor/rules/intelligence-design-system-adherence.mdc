@@ -1,0 +1,19 @@
+---
+description: Keep the standalone Intelligence project aligned with its own (not-yet-provided) design source of truth
+globs: app/intelligence/**,features/intelligence/**
+alwaysApply: false
+---
+
+# Intelligence Design System Adherence
+
+- Intelligence is a brand new, standalone project. It is intentionally decoupled from the katiesiu
+  portfolio and must not import from or reuse anything under `app/page.tsx`, `app/ctv`,
+  `app/campaign-planner`, `features/ctv`, `features/campaign-planner`, `features/design-system`,
+  or the portfolio's Figma frame (`26:15603`).
+- Design tokens for Intelligence live in `features/intelligence/tokens.ts`. That file is currently
+  an empty placeholder — do not invent colors, fonts, spacing, radius, or shadows for it.
+- **Awaiting resource**: the user will provide a resource (e.g. a Figma frame, file, or link) to
+  populate this file with. Once provided, update `colorTokens` and `typographyTokens` in
+  `features/intelligence/tokens.ts` to match that source of truth, then apply them consistently
+  across `app/intelligence/**` and `features/intelligence/**`.
+- Do not add assets, spacing, radius, shadows, or component examples until the user provides them.
