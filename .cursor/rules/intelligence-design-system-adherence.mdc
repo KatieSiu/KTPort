@@ -1,5 +1,5 @@
 ---
-description: Keep the standalone Intelligence project aligned with its own (not-yet-provided) design source of truth
+description: Keep the standalone Intelligence project aligned with the installed design-taste-frontend skill
 globs: app/intelligence/**,features/intelligence/**
 alwaysApply: false
 ---
@@ -10,10 +10,13 @@ alwaysApply: false
   portfolio and must not import from or reuse anything under `app/page.tsx`, `app/ctv`,
   `app/campaign-planner`, `features/ctv`, `features/campaign-planner`, `features/design-system`,
   or the portfolio's Figma frame (`26:15603`).
-- Design tokens for Intelligence live in `features/intelligence/tokens.ts`. That file is currently
-  an empty placeholder — do not invent colors, fonts, spacing, radius, or shadows for it.
-- **Awaiting resource**: the user will provide a resource (e.g. a Figma frame, file, or link) to
-  populate this file with. Once provided, update `colorTokens` and `typographyTokens` in
-  `features/intelligence/tokens.ts` to match that source of truth, then apply them consistently
-  across `app/intelligence/**` and `features/intelligence/**`.
-- Do not add assets, spacing, radius, shadows, or component examples until the user provides them.
+- For any UI/design decisions in `app/intelligence/**` or `features/intelligence/**`, read and
+  follow `.agents/skills/design-taste-frontend/SKILL.md` (installed via `npx skills add
+  Leonxlnx/taste-skill --skill "design-taste-frontend"`) before writing markup or styles. That
+  skill is the source of truth for layout, typography, motion, color, and its pre-flight checklist.
+- Design tokens for Intelligence live in `features/intelligence/tokens.ts`. Populate it following
+  the skill's Section 1 (dials) and Section 4 (typography/color) guidance once a concrete brief or
+  brand direction is provided, rather than inventing values ad hoc.
+- The skill does not bundle icons or images. Use its Section 3.C icon-library allowlist (Phosphor,
+  HugeIcons, Radix Icons, Tabler) and Section 4.8 image strategy (image-gen tool, then Picsum
+  placeholders, then explicit placeholder slots) — do not hand-roll SVG icons or illustrations.
