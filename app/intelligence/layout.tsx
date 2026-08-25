@@ -10,5 +10,17 @@ export default function IntelligenceLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <div className="min-h-screen">{children}</div>;
+  return (
+    <div
+      className="dark min-h-screen"
+      style={{
+        fontFamily: "var(--font-inter), Inter, system-ui, sans-serif",
+        fontSize: "13px",
+        lineHeight: "1.5",
+        background: "#0a0a0a",
+      }}
+    >
+      {children}
+    </div>
+  );
 }

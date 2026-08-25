@@ -12,9 +12,9 @@ function findMessage(threadId: string | null, runId: string | null): Message | n
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-baseline justify-between py-1.5">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium text-foreground">{value}</span>
+    <div className="flex items-baseline justify-between py-1">
+      <span className="text-[11px] text-muted-foreground">{label}</span>
+      <span className="text-[13px] font-medium text-foreground">{value}</span>
     </div>
   );
 }
@@ -25,31 +25,31 @@ export function RunDetailPanel() {
   if (!message) return null;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-background">
-      <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
+    <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex shrink-0 items-center justify-between border-b border-white/[0.06] px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs text-foreground">
+          <span className="rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[11px] text-foreground">
             {message.role === "tool_call" ? "tool" : "llm"}
           </span>
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-[13px] font-medium text-foreground">
             {message.toolName || message.model || "Run"}
           </span>
         </div>
         <button
           onClick={closeRun}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="flex h-6 w-6 items-center justify-center rounded-md text-[11px] text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground"
         >
-          ✕
+          &#10005;
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         {(message.model || message.tokens || message.latency || message.cost) && (
-          <div className="border-b border-border px-4 py-3">
-            <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <div className="border-b border-white/[0.06] px-4 py-3">
+            <h3 className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Metrics
             </h3>
-            <div className="divide-y divide-border/30">
+            <div className="divide-y divide-white/[0.04]">
               {message.model && <DetailRow label="Model" value={message.model} />}
               {message.tokens && (
                 <>
@@ -63,11 +63,11 @@ export function RunDetailPanel() {
           </div>
         )}
 
-        <div className="border-b border-border px-4 py-3">
-          <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <div className="border-b border-white/[0.06] px-4 py-3">
+          <h3 className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
             {message.role === "tool_call" ? "Call" : "Input"}
           </h3>
-          <pre className="overflow-x-auto rounded-md bg-muted/50 p-3 font-mono text-xs text-foreground">
+          <pre className="overflow-x-auto rounded-lg bg-white/[0.03] p-2.5 font-mono text-[11px] text-foreground">
             {message.role === "tool_call"
               ? message.content
               : "(prompt messages passed to the model)"}
@@ -75,10 +75,10 @@ export function RunDetailPanel() {
         </div>
 
         <div className="px-4 py-3">
-          <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <h3 className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
             Output
           </h3>
-          <pre className="overflow-x-auto whitespace-pre-wrap rounded-md bg-muted/50 p-3 font-mono text-xs text-foreground">
+          <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-white/[0.03] p-2.5 font-mono text-[11px] text-foreground">
             {message.content}
           </pre>
         </div>
