@@ -264,4 +264,125 @@ export const mockThreads: Thread[] = [
       { id: "r_10h", role: "assistant", content: "Done! I've added \"Happy Birthday Mom! Love, Lisa\" as the gift message on order #6104. It'll be printed on a card included with the package.", timestamp: "13:06:50", runId: "run_10h", model: "gpt-4o", tokens: { input: 534, output: 38 }, latency: "240ms", cost: "$0.006" },
     ],
   },
+  {
+    id: "th_11", user: "david.park", startedAt: "1h 35m ago", turns: 2, duration: "9s", score: 0.91, status: "completed", model: "gpt-4o-mini", totalTokens: 710, totalCost: "$0.003",
+    messages: [
+      { id: "r_11a", role: "human", content: "What's your return policy?", timestamp: "12:59:10" },
+      { id: "r_11b", role: "assistant", content: "You can return any item within 30 days of delivery for a full refund. Items must be unused and in original packaging.", timestamp: "12:59:11", runId: "run_11b", model: "gpt-4o-mini", tokens: { input: 182, output: 44 }, latency: "130ms", cost: "$0.001" },
+    ],
+  },
+  {
+    id: "th_12", user: "rachel.green", startedAt: "1h 42m ago", turns: 4, duration: "45s", score: 0.76, status: "completed", model: "gpt-4o", totalTokens: 3120, totalCost: "$0.038",
+    messages: [
+      { id: "r_12a", role: "human", content: "I need to cancel my subscription", timestamp: "12:52:18" },
+      { id: "r_12b", role: "tool_call", content: "get_subscription(user=\"rachel.green\")", timestamp: "12:52:19", runId: "run_12b", toolName: "get_subscription", model: "gpt-4o", tokens: { input: 276, output: 28 }, latency: "200ms", cost: "$0.004" },
+      { id: "r_12c", role: "tool_response", content: "{\"plan\": \"Pro\", \"billing\": \"annual\", \"renewal\": \"Nov 15\"}", timestamp: "12:52:19", runId: "run_12c" },
+      { id: "r_12d", role: "assistant", content: "You're on the annual Pro plan, renewing November 15th. I can cancel it — you'll keep access until the renewal date. Want to proceed?", timestamp: "12:52:20", runId: "run_12d", model: "gpt-4o", tokens: { input: 498, output: 42 }, latency: "310ms", cost: "$0.007" },
+    ],
+  },
+  {
+    id: "th_13", user: "tom.hanks", startedAt: "1h 58m ago", turns: 3, duration: "28s", score: 0.83, status: "completed", model: "gpt-4o", totalTokens: 2240, totalCost: "$0.027",
+    messages: [
+      { id: "r_13a", role: "human", content: "Do you have the Air Max 90 in size 11?", timestamp: "12:36:02" },
+      { id: "r_13b", role: "tool_call", content: "check_inventory(sku=\"AM90\", size=\"11\")", timestamp: "12:36:03", runId: "run_13b", toolName: "check_inventory", model: "gpt-4o", tokens: { input: 264, output: 24 }, latency: "180ms", cost: "$0.003" },
+      { id: "r_13c", role: "tool_response", content: "{\"in_stock\": true, \"colors\": [\"white\", \"black\", \"infrared\"], \"price\": \"$130\"}", timestamp: "12:36:03", runId: "run_13c" },
+      { id: "r_13d", role: "assistant", content: "Yes! The Air Max 90 in size 11 is available in white, black, and infrared at $130. Want me to add one to your cart?", timestamp: "12:36:04", runId: "run_13d", model: "gpt-4o", tokens: { input: 487, output: 38 }, latency: "280ms", cost: "$0.006" },
+    ],
+  },
+  {
+    id: "th_14", user: "maya.singh", startedAt: "2h 5m ago", turns: 2, duration: "6s", score: 0.97, status: "completed", model: "gpt-4o-mini", totalTokens: 520, totalCost: "$0.002",
+    messages: [
+      { id: "r_14a", role: "human", content: "Is there a student discount?", timestamp: "12:29:44" },
+      { id: "r_14b", role: "assistant", content: "Yes — verified students get 15% off with a valid .edu email. Apply at checkout with code STUDENT15.", timestamp: "12:29:45", runId: "run_14b", model: "gpt-4o-mini", tokens: { input: 164, output: 36 }, latency: "110ms", cost: "$0.001" },
+    ],
+  },
+  {
+    id: "th_15", user: "ben.wright", startedAt: "2h 18m ago", turns: 5, duration: "1m 22s", score: 0.48, status: "failed", model: "gpt-4o", totalTokens: 4680, totalCost: "$0.057",
+    messages: [
+      { id: "r_15a", role: "human", content: "I was charged for an item I already returned", timestamp: "12:16:33" },
+      { id: "r_15b", role: "tool_call", content: "get_returns(user=\"ben.wright\")", timestamp: "12:16:34", runId: "run_15b", toolName: "get_returns", model: "gpt-4o", tokens: { input: 278, output: 26 }, latency: "220ms", cost: "$0.004" },
+      { id: "r_15c", role: "tool_response", content: "{\"error\": \"SERVICE_UNAVAILABLE\"}", timestamp: "12:16:37", runId: "run_15c" },
+      { id: "r_15d", role: "assistant", content: "I'm sorry, I'm having trouble accessing your return records. Let me try again.", timestamp: "12:16:38", runId: "run_15d", model: "gpt-4o", tokens: { input: 412, output: 28 }, latency: "240ms", cost: "$0.005" },
+      { id: "r_15e", role: "tool_call", content: "get_returns(user=\"ben.wright\", retry=true)", timestamp: "12:16:39", runId: "run_15e", toolName: "get_returns", model: "gpt-4o", tokens: { input: 436, output: 28 }, latency: "4800ms", cost: "$0.006" },
+      { id: "r_15f", role: "tool_response", content: "{\"error\": \"TIMEOUT\"}", timestamp: "12:16:44", runId: "run_15f" },
+      { id: "r_15g", role: "assistant", content: "I apologize — our returns system is currently down. I'd recommend contacting us again in an hour, or I can escalate this to a human agent now.", timestamp: "12:16:45", runId: "run_15g", model: "gpt-4o", tokens: { input: 587, output: 46 }, latency: "340ms", cost: "$0.008" },
+    ],
+  },
+  {
+    id: "th_16", user: "olivia.martinez", startedAt: "2h 31m ago", turns: 3, duration: "18s", score: 0.90, status: "completed", model: "gpt-4o", totalTokens: 1890, totalCost: "$0.023",
+    messages: [
+      { id: "r_16a", role: "human", content: "Can I get an invoice for order #7720?", timestamp: "12:03:11" },
+      { id: "r_16b", role: "tool_call", content: "generate_invoice(order_id=\"7720\")", timestamp: "12:03:12", runId: "run_16b", toolName: "generate_invoice", model: "gpt-4o", tokens: { input: 256, output: 22 }, latency: "340ms", cost: "$0.003" },
+      { id: "r_16c", role: "tool_response", content: "{\"url\": \"https://store.example.com/invoices/7720.pdf\"}", timestamp: "12:03:12", runId: "run_16c" },
+      { id: "r_16d", role: "assistant", content: "Here's your invoice: https://store.example.com/invoices/7720.pdf — it includes the full order breakdown and tax details.", timestamp: "12:03:13", runId: "run_16d", model: "gpt-4o", tokens: { input: 434, output: 36 }, latency: "260ms", cost: "$0.006" },
+    ],
+  },
+  {
+    id: "th_17", user: "kevin.zhao", startedAt: "2h 45m ago", turns: 2, duration: "11s", score: 0.85, status: "completed", model: "gpt-4o-mini", totalTokens: 680, totalCost: "$0.003",
+    messages: [
+      { id: "r_17a", role: "human", content: "When will the new colorways drop?", timestamp: "11:49:22" },
+      { id: "r_17b", role: "assistant", content: "The Fall 2026 collection drops September 4th at 10 AM ET. Sign up for notifications at store.example.com/drops to get early access.", timestamp: "11:49:23", runId: "run_17b", model: "gpt-4o-mini", tokens: { input: 178, output: 48 }, latency: "140ms", cost: "$0.001" },
+    ],
+  },
+  {
+    id: "th_18", user: "aisha.kumar", startedAt: "3h 2m ago", turns: 4, duration: "34s", score: 0.72, status: "completed", model: "gpt-4o", totalTokens: 2890, totalCost: "$0.035",
+    messages: [
+      { id: "r_18a", role: "human", content: "My order arrived damaged", timestamp: "11:32:44" },
+      { id: "r_18b", role: "assistant", content: "I'm sorry to hear that. Could you share your order number and a photo of the damage? I'll get a replacement started right away.", timestamp: "11:32:45", runId: "run_18b", model: "gpt-4o", tokens: { input: 234, output: 38 }, latency: "220ms", cost: "$0.004" },
+      { id: "r_18c", role: "human", content: "Order #8842, the box was crushed and the item inside is cracked", timestamp: "11:33:02" },
+      { id: "r_18d", role: "tool_call", content: "create_replacement(order_id=\"8842\", reason=\"damaged_in_transit\")", timestamp: "11:33:03", runId: "run_18d", toolName: "create_replacement", model: "gpt-4o", tokens: { input: 478, output: 30 }, latency: "420ms", cost: "$0.006" },
+      { id: "r_18e", role: "tool_response", content: "{\"replacement_order\": \"8843\", \"eta\": \"Aug 29\"}", timestamp: "11:33:03", runId: "run_18e" },
+      { id: "r_18f", role: "assistant", content: "Done — replacement order #8843 is on its way and should arrive by August 29th. No need to return the damaged item.", timestamp: "11:33:04", runId: "run_18f", model: "gpt-4o", tokens: { input: 612, output: 42 }, latency: "300ms", cost: "$0.008" },
+    ],
+  },
+  {
+    id: "th_19", user: "lucas.ferreira", startedAt: "3h 15m ago", turns: 2, duration: "7s", score: 0.93, status: "completed", model: "gpt-4o-mini", totalTokens: 590, totalCost: "$0.002",
+    messages: [
+      { id: "r_19a", role: "human", content: "Do you ship to Brazil?", timestamp: "11:19:55" },
+      { id: "r_19b", role: "assistant", content: "Yes, we ship to Brazil! Standard international shipping takes 10-14 business days and costs $19.99. Express (5-7 days) is $34.99.", timestamp: "11:19:56", runId: "run_19b", model: "gpt-4o-mini", tokens: { input: 170, output: 42 }, latency: "120ms", cost: "$0.001" },
+    ],
+  },
+  {
+    id: "th_20", user: "sophie.anderson", startedAt: "3h 28m ago", turns: 3, duration: "21s", score: 0.86, status: "completed", model: "gpt-4o", totalTokens: 1740, totalCost: "$0.021",
+    messages: [
+      { id: "r_20a", role: "human", content: "How do I use my gift card?", timestamp: "11:06:33" },
+      { id: "r_20b", role: "assistant", content: "At checkout, enter the 16-digit code from the back of your gift card in the 'Gift Card or Promo Code' field. The balance will be applied automatically. Any remaining balance stays on the card for future purchases.", timestamp: "11:06:34", runId: "run_20b", model: "gpt-4o", tokens: { input: 198, output: 52 }, latency: "240ms", cost: "$0.004" },
+      { id: "r_20c", role: "human", content: "Can I use it with a promo code?", timestamp: "11:06:48" },
+      { id: "r_20d", role: "assistant", content: "Yes! Gift cards and promo codes stack — apply both at checkout. The promo discount applies first, then the gift card covers the remaining total.", timestamp: "11:06:49", runId: "run_20d", model: "gpt-4o", tokens: { input: 342, output: 38 }, latency: "200ms", cost: "$0.005" },
+    ],
+  },
+  {
+    id: "th_21", user: "ethan.moore", startedAt: "3h 40m ago", turns: 2, duration: "8s", score: 0.94, status: "completed", model: "gpt-4o-mini", totalTokens: 620, totalCost: "$0.002",
+    messages: [
+      { id: "r_21a", role: "human", content: "What payment methods do you accept?", timestamp: "10:54:11" },
+      { id: "r_21b", role: "assistant", content: "We accept Visa, Mastercard, Amex, Discover, Apple Pay, Google Pay, PayPal, and Klarna (pay in 4 installments).", timestamp: "10:54:12", runId: "run_21b", model: "gpt-4o-mini", tokens: { input: 174, output: 40 }, latency: "115ms", cost: "$0.001" },
+    ],
+  },
+  {
+    id: "th_22", user: "maria.costa", startedAt: "3h 55m ago", turns: 4, duration: "42s", score: 0.61, status: "completed", model: "gpt-4o", totalTokens: 3340, totalCost: "$0.041",
+    messages: [
+      { id: "r_22a", role: "human", content: "Why was my order cancelled?", timestamp: "10:39:22" },
+      { id: "r_22b", role: "tool_call", content: "get_order_history(user=\"maria.costa\", status=\"cancelled\")", timestamp: "10:39:23", runId: "run_22b", toolName: "get_order_history", model: "gpt-4o", tokens: { input: 288, output: 28 }, latency: "260ms", cost: "$0.004" },
+      { id: "r_22c", role: "tool_response", content: "{\"order\": \"9102\", \"reason\": \"payment_declined\", \"card_last4\": \"4821\"}", timestamp: "10:39:23", runId: "run_22c" },
+      { id: "r_22d", role: "assistant", content: "Order #9102 was cancelled because the payment on your card ending in 4821 was declined. This is usually due to insufficient funds or the card issuer blocking the transaction. Would you like to retry with a different payment method?", timestamp: "10:39:24", runId: "run_22d", model: "gpt-4o", tokens: { input: 512, output: 56 }, latency: "380ms", cost: "$0.007" },
+      { id: "r_22e", role: "human", content: "Can you try my other card on file?", timestamp: "10:39:38" },
+      { id: "r_22f", role: "assistant", content: "For security, I can't retry payment on your behalf. But I can re-create the order — just head to your cart where the items are still saved, and select your other card at checkout. Everything will be ready for you.", timestamp: "10:39:39", runId: "run_22f", model: "gpt-4o", tokens: { input: 634, output: 52 }, latency: "320ms", cost: "$0.009" },
+    ],
+  },
+  {
+    id: "th_23", user: "noah.kim", startedAt: "4h 8m ago", turns: 2, duration: "10s", score: 0.88, status: "completed", model: "gpt-4o-mini", totalTokens: 740, totalCost: "$0.003",
+    messages: [
+      { id: "r_23a", role: "human", content: "How do I track my order?", timestamp: "10:26:05" },
+      { id: "r_23b", role: "assistant", content: "Go to store.example.com/orders and sign in, or check the shipping confirmation email — it has a tracking link directly from the carrier. You can also just tell me your order number and I'll look it up for you.", timestamp: "10:26:06", runId: "run_23b", model: "gpt-4o-mini", tokens: { input: 186, output: 54 }, latency: "145ms", cost: "$0.001" },
+    ],
+  },
+  {
+    id: "th_24", user: "chloe.dubois", startedAt: "4h 22m ago", turns: 3, duration: "26s", score: 0.81, status: "in_progress", model: "gpt-4o", totalTokens: 2100, totalCost: "$0.025",
+    messages: [
+      { id: "r_24a", role: "human", content: "I want to exchange my jacket for a larger size", timestamp: "10:12:44" },
+      { id: "r_24b", role: "tool_call", content: "find_recent_orders(user=\"chloe.dubois\", category=\"apparel\")", timestamp: "10:12:45", runId: "run_24b", toolName: "find_recent_orders", model: "gpt-4o", tokens: { input: 282, output: 28 }, latency: "240ms", cost: "$0.004" },
+      { id: "r_24c", role: "tool_response", content: "{\"orders\": [{\"id\": \"9330\", \"item\": \"Puffer Jacket - M\", \"exchangeable\": true}]}", timestamp: "10:12:45", runId: "run_24c" },
+      { id: "r_24d", role: "assistant", content: "I found your Puffer Jacket in Medium from order #9330. I can set up an exchange for a Large — we'll send the new size and include a prepaid return label for the Medium. Want me to go ahead?", timestamp: "10:12:46", runId: "run_24d", model: "gpt-4o", tokens: { input: 498, output: 48 }, latency: "340ms", cost: "$0.007" },
+    ],
+  },
 ];

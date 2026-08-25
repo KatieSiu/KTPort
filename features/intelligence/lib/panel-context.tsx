@@ -29,7 +29,7 @@ export function PanelProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PanelState>({ threadId: null, runId: null });
 
   const openThread = useCallback((id: string) => {
-    setState({ threadId: id, runId: null });
+    setState((prev) => ({ ...prev, threadId: id }));
   }, []);
 
   const openRun = useCallback((id: string) => {

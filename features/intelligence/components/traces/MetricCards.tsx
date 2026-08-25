@@ -1,13 +1,40 @@
 "use client";
 
-import { Area, AreaChart, ResponsiveContainer } from "recharts";
+import { useRef, useState, useEffect } from "react";
 import { mockMetrics } from "../../lib/mock-data";
 
-function SparklineCard({ label, value, trend, change, positive }: typeof mockMetrics[number]) {
-  const data = trend.map((v, i) => ({ i, v }));
+function SparklineSvg({ trend, positive }: { trend: number[]; positive: boolean }) {
+  const min = Math.min(...trend);
+  const max = Math.max(...trend);
+  const range = max - min || 1;
+  const w = 100;
+  const h = 24;
+  const points = trend
+    .map((v, i) => {
+      const x = (i / (trend.length - 1)) * w;
+      const y = h - ((v - min) / range) * h;
+      return `${x},${y}`;
+    })
+    .join(" ");
 
   return (
-    <div className="flex min-w-[160px] flex-1 flex-col gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] p-3">
+    <svg viewBox={`0 0 ${w} ${h}`} className="h-5 w-full" preserveAspectRatio="none">
+      <polyline
+        points={points}
+        fill="none"
+        stroke={positive ? "#10b981" : "#f87171"}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
+
+function SparklineCard({ label, value, trend, change, positive }: typeof mockMetrics[number]) {
+  return (
+    <div className="flex min-w-[140px] flex-1 flex-col gap-1.5 rounded-lg bg-white/[0.03] p-3">
       <span className="text-[11px] text-muted-foreground">{label}</span>
       <div className="flex items-end justify-between">
         <span className="text-lg font-semibold text-foreground">{value}</span>
@@ -15,39 +42,35 @@ function SparklineCard({ label, value, trend, change, positive }: typeof mockMet
           {change}
         </span>
       </div>
-      <div className="h-6 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-            <defs>
-              <linearGradient id={`grad-${label}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={positive ? "#10b981" : "#f87171"} stopOpacity={0.25} />
-                <stop offset="100%" stopColor={positive ? "#10b981" : "#f87171"} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <Area
-              type="monotone"
-              dataKey="v"
-              stroke={positive ? "#10b981" : "#f87171"}
-              strokeWidth={1.5}
-              fill={`url(#grad-${label})`}
-              dot={false}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+      <SparklineSvg trend={trend} positive={positive} />
     </div>
   );
 }
 
 export function MetricCards() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const check = () => setIsOverflowing(el.scrollWidth > el.clientWidth + 2);
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="relative shrink-0 overflow-hidden">
-      <div className="flex gap-2.5 overflow-x-auto p-4 pb-3 scrollbar-none">
+      <div ref={scrollRef} className="flex gap-2 overflow-x-auto p-3 pb-2 scrollbar-none">
         {mockMetrics.map((metric) => (
           <SparklineCard key={metric.label} {...metric} />
         ))}
       </div>
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[hsl(var(--panel-surface))] to-transparent" />
+      {isOverflowing && (
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[hsl(var(--panel-surface))] to-transparent" />
+      )}
     </div>
   );
 }

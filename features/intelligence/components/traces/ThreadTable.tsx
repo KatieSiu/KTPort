@@ -52,22 +52,31 @@ export function ThreadTable() {
           </tr>
         </thead>
         <tbody>
-          {mockThreads.map((thread) => (
-            <tr
-              key={thread.id}
-              onClick={() => openThread(thread.id)}
-              className={`cursor-pointer border-b border-white/[0.04] transition-colors hover:bg-white/[0.03] ${
-                state.threadId === thread.id ? "bg-white/[0.05]" : ""
-              }`}
-            >
-              <td className="py-2 text-muted-foreground">{thread.startedAt}</td>
-              <td className="py-2 font-medium text-foreground">{thread.user}</td>
-              <td className="py-2 text-muted-foreground">{thread.turns}</td>
-              <td className="py-2 text-muted-foreground">{thread.duration}</td>
-              <td className="py-2"><ScoreBadge score={thread.score} /></td>
-              <td className="py-2"><StatusPill status={thread.status} /></td>
-            </tr>
-          ))}
+          {mockThreads.map((thread, i) => {
+            const isActive = state.threadId === thread.id;
+            const prevActive = i > 0 && state.threadId === mockThreads[i - 1].id;
+            const nextActive = i < mockThreads.length - 1 && state.threadId === mockThreads[i + 1].id;
+            const hideTopBorder = isActive || prevActive;
+            const hideBottomBorder = isActive || nextActive;
+
+            return (
+              <tr
+                key={thread.id}
+                onClick={() => openThread(thread.id)}
+                className={`cursor-pointer border-t transition-colors hover:bg-white/[0.03] ${
+                  isActive ? "bg-white/[0.05]" : ""
+                } ${hideTopBorder ? "border-transparent" : "border-white/[0.04]"}`}
+                style={hideBottomBorder ? undefined : undefined}
+              >
+                <td className={`py-2 text-muted-foreground ${isActive ? "first:rounded-l-lg" : ""}`}>{thread.startedAt}</td>
+                <td className="py-2 font-medium text-foreground">{thread.user}</td>
+                <td className="py-2 text-muted-foreground">{thread.turns}</td>
+                <td className="py-2 text-muted-foreground">{thread.duration}</td>
+                <td className="py-2"><ScoreBadge score={thread.score} /></td>
+                <td className={`py-2 ${isActive ? "last:rounded-r-lg" : ""}`}><StatusPill status={thread.status} /></td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

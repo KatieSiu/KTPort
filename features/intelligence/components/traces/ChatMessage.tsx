@@ -13,14 +13,8 @@ export function ChatMessage({ message }: { message: Message }) {
 
   if (message.role === "human") {
     return (
-      <div className="flex gap-2.5 py-2.5">
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-[10px] font-medium text-blue-400">
-          U
-        </div>
-        <div className="flex-1 pt-0.5">
-          <p className="text-[13px] leading-relaxed text-foreground">{message.content}</p>
-          <span className="mt-0.5 block text-[11px] text-muted-foreground">{message.timestamp}</span>
-        </div>
+      <div className="px-1 py-1">
+        <p className="text-[13px] leading-relaxed text-foreground">{message.content}</p>
       </div>
     );
   }
@@ -29,43 +23,33 @@ export function ChatMessage({ message }: { message: Message }) {
     return (
       <div
         onClick={handleClick}
-        className={`mx-7 flex items-center gap-2 rounded-md border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 ${
-          isClickable ? "cursor-pointer transition-colors hover:bg-white/[0.06]" : ""
+        className={`my-1.5 flex items-center gap-2 rounded-lg border border-white/[0.06] px-3 py-2.5 ${
+          isClickable ? "cursor-pointer transition-colors hover:bg-white/[0.03]" : ""
         }`}
       >
-        <span className="text-[10px] text-yellow-500">&#9889;</span>
-        <code className="flex-1 text-[11px] text-muted-foreground">{message.content}</code>
+        <span className="font-mono text-[11px] text-foreground">{message.toolName || "tool"}</span>
         {message.latency && (
-          <span className="text-[11px] text-muted-foreground">{message.latency}</span>
+          <span className="ml-auto font-mono text-[11px] text-muted-foreground">{message.latency}</span>
         )}
       </div>
     );
   }
 
   if (message.role === "tool_response") {
-    return (
-      <div className="mx-7 rounded-md bg-white/[0.02] px-2.5 py-1.5">
-        <code className="text-[11px] text-muted-foreground">{message.content}</code>
-      </div>
-    );
+    return null;
   }
 
   return (
     <div
       onClick={handleClick}
-      className={`flex gap-2.5 py-2.5 ${isClickable ? "cursor-pointer rounded-md transition-colors hover:bg-white/[0.03]" : ""}`}
+      className={`my-1.5 flex items-start justify-between gap-2.5 rounded-lg border border-white/[0.06] px-3 py-2.5 ${isClickable ? "cursor-pointer transition-colors hover:bg-white/[0.03]" : ""}`}
     >
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-[10px] font-medium text-emerald-400">
-        AI
-      </div>
-      <div className="flex-1 pt-0.5">
+      <div className="flex-1">
         <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-foreground">{message.content}</p>
-        <div className="mt-0.5 flex items-center gap-2.5 text-[11px] text-muted-foreground">
-          <span>{message.timestamp}</span>
-          {message.model && <span>{message.model}</span>}
-          {message.tokens && <span>{message.tokens.input + message.tokens.output} tok</span>}
-          {message.latency && <span>{message.latency}</span>}
-        </div>
+        <span className="mt-0.5 block text-[11px] text-muted-foreground">{message.timestamp}</span>
+      </div>
+      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-[9px] font-medium text-emerald-400">
+        AI
       </div>
     </div>
   );

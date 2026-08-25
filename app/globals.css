@@ -49,7 +49,7 @@
   .dark {
     --background: 0 0% 4%;
     --foreground: 0 0% 93%;
-    --card: 0 0% 8%;
+    --card: 0 0% 4%;
     --card-foreground: 0 0% 93%;
     --popover: 0 0% 8%;
     --popover-foreground: 0 0% 93%;
@@ -71,7 +71,7 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --panel-surface: 0 0% 8%;
+    --panel-surface: 0 0% 6.5%;
     --panel-border: 0 0% 14%;
   }
 
