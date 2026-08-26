@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PanelProvider } from "@/features/intelligence/lib/panel-context";
 import { AppShell } from "@/features/intelligence/components/shell/AppShell";
-import type { TabId } from "@/features/intelligence/components/shell/TabBar";
+import type { TabId } from "@/features/intelligence/components/shell/SideNav";
 import { PanelStack } from "@/features/intelligence/components/panels/PanelStack";
 import { MetricCards } from "@/features/intelligence/components/traces/MetricCards";
 import { ThreadTable } from "@/features/intelligence/components/traces/ThreadTable";
@@ -13,7 +13,9 @@ import {
   OverviewGhost,
   DatasetsGhost,
   ExperimentsGhost,
-  PromptsGhost,
+  EvaluationsGhost,
+  PlaygroundGhost,
+  SettingsGhost,
 } from "@/features/intelligence/components/traces/GhostView";
 
 function TracesContent() {
@@ -27,7 +29,7 @@ function TracesContent() {
 
 function SinglePanel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-full w-full overflow-hidden p-2 pt-0">
+    <div className="flex h-full w-full overflow-hidden">
       <div className="flex h-full flex-1 flex-col overflow-hidden rounded-xl bg-[hsl(var(--panel-surface))]">
         {children}
       </div>
@@ -46,13 +48,17 @@ function TabContent({ tab }: { tab: TabId }) {
     );
   }
 
-  if (tab === "Overview") {
+  if (tab === "Home") {
     return (
       <SinglePanel>
         <MetricCards />
         <OverviewGhost />
       </SinglePanel>
     );
+  }
+
+  if (tab === "Evaluations") {
+    return <SinglePanel><EvaluationsGhost /></SinglePanel>;
   }
 
   if (tab === "Datasets") {
@@ -63,8 +69,12 @@ function TabContent({ tab }: { tab: TabId }) {
     return <SinglePanel><ExperimentsGhost /></SinglePanel>;
   }
 
-  if (tab === "Prompts") {
-    return <SinglePanel><PromptsGhost /></SinglePanel>;
+  if (tab === "Playground") {
+    return <SinglePanel><PlaygroundGhost /></SinglePanel>;
+  }
+
+  if (tab === "Settings") {
+    return <SinglePanel><SettingsGhost /></SinglePanel>;
   }
 
   return null;

@@ -21,7 +21,7 @@ export function PanelStack({ content, l2Panel, l3Panel }: PanelStackProps) {
   const l2Width = hasL3 ? "36%" : "50%";
 
   return (
-    <div className="relative flex h-full w-full overflow-hidden pb-2 pl-2 pr-2">
+    <div className="relative flex h-full w-full overflow-hidden">
       <motion.div
         animate={{ width: contentWidth }}
         transition={{ duration: 0.35, ease }}

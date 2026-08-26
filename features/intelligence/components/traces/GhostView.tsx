@@ -142,7 +142,79 @@ export function ExperimentsGhost() {
   );
 }
 
-export function PromptsGhost() {
+export function EvaluationsGhost() {
+  const evaluations = [
+    { name: "Hallucination check", type: "Online", target: "All traces", score: 0.94, lastRun: "12 min ago", status: "active" },
+    { name: "Brand tone", type: "Online", target: "AI responses", score: 0.87, lastRun: "12 min ago", status: "active" },
+    { name: "Tool accuracy", type: "Offline", target: "Golden support cases", score: 0.91, lastRun: "2 hours ago", status: "completed" },
+    { name: "Refund policy compliance", type: "Online", target: "Refund threads", score: 0.79, lastRun: "34 min ago", status: "active" },
+    { name: "Prompt v13 regression", type: "Offline", target: "Order lookup regression", score: 0.68, lastRun: "1 day ago", status: "failed" },
+    { name: "Latency SLA", type: "Online", target: "All traces", score: 0.96, lastRun: "5 min ago", status: "active" },
+    { name: "PII detection", type: "Online", target: "All traces", score: 0.99, lastRun: "8 min ago", status: "active" },
+  ];
+
+  return (
+    <div className="flex h-full flex-col overflow-hidden p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <div>
+          <h2 className="text-[13px] font-medium text-foreground">Evaluations</h2>
+          <p className="text-[11px] text-muted-foreground">Online and offline scorers monitoring agent quality</p>
+        </div>
+        <div className="rounded-md bg-white/[0.06] px-2.5 py-1 text-[11px] text-muted-foreground">+ New evaluator</div>
+      </div>
+      <div className="flex-1 overflow-auto">
+        <table className="w-full text-[13px]">
+          <thead>
+            <tr className="border-b border-white/[0.06] text-left text-[11px] text-muted-foreground">
+              <th className="py-2 font-medium">Name</th>
+              <th className="py-2 font-medium">Type</th>
+              <th className="py-2 font-medium">Target</th>
+              <th className="py-2 font-medium">Score</th>
+              <th className="py-2 font-medium">Last run</th>
+              <th className="py-2 font-medium">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {evaluations.map((e) => {
+              const scoreColor = e.score >= 0.9 ? "bg-emerald-500/10 text-emerald-400" : e.score >= 0.75 ? "bg-yellow-500/10 text-yellow-400" : "bg-red-400/10 text-red-400";
+              const statusColor = e.status === "active" ? "bg-emerald-500/10 text-emerald-400" : e.status === "completed" ? "bg-blue-400/10 text-blue-400" : "bg-red-400/10 text-red-400";
+              const typeColor = e.type === "Online" ? "bg-blue-400/10 text-blue-400" : "bg-white/[0.06] text-muted-foreground";
+              return (
+                <tr key={e.name} className="border-b border-white/[0.04]">
+                  <td className="py-2 font-medium text-foreground">{e.name}</td>
+                  <td className="py-2"><span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${typeColor}`}>{e.type}</span></td>
+                  <td className="py-2 text-muted-foreground">{e.target}</td>
+                  <td className="py-2"><span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${scoreColor}`}>{e.score.toFixed(2)}</span></td>
+                  <td className="py-2 text-muted-foreground">{e.lastRun}</td>
+                  <td className="py-2"><span className={`rounded px-1.5 py-0.5 text-[11px] font-medium capitalize ${statusColor}`}>{e.status}</span></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+export function SettingsGhost() {
+  return (
+    <div className="flex h-full flex-col overflow-hidden p-4">
+      <h2 className="text-[13px] font-medium text-foreground">Settings</h2>
+      <p className="mb-4 text-[11px] text-muted-foreground">Project configuration and integrations</p>
+      <div className="flex flex-col gap-3">
+        {["General", "API keys", "Team members", "Automations", "Integrations", "Data retention"].map((section) => (
+          <div key={section} className="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2.5">
+            <span className="text-[13px] text-foreground">{section}</span>
+            <svg width="12" height="12" viewBox="0 0 15 15" fill="none"><path d="M6 3L10 7.5L6 12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.4" /></svg>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function PlaygroundGhost() {
   const prompts = [
     { name: "Support agent system", version: "v12", model: "gpt-4o", edited: "2 hours ago", editor: "sarah.chen", tag: "prod" },
     { name: "Support agent system", version: "v13", model: "gpt-4o", edited: "45 min ago", editor: "sarah.chen", tag: "staging" },
@@ -155,8 +227,8 @@ export function PromptsGhost() {
     <div className="flex h-full flex-col overflow-hidden p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-[13px] font-medium text-foreground">Prompts</h2>
-          <p className="text-[11px] text-muted-foreground">Versioned prompt templates used across agents</p>
+          <h2 className="text-[13px] font-medium text-foreground">Playground</h2>
+          <p className="text-[11px] text-muted-foreground">Prototype and version prompt templates</p>
         </div>
         <div className="rounded-md bg-white/[0.06] px-2.5 py-1 text-[11px] text-muted-foreground">+ New prompt</div>
       </div>
