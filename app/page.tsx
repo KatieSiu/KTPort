@@ -790,7 +790,10 @@ export default function HomePage() {
                 }}
               >
                 <p>
-                  After analyzing the high level architecture of Braintrust and LangSmith, it seems that both focus on single/siloed-team enablement. Neither tools allow for core elements like Evaluators, Company metrics, or Prompt structures to be reused or templatetized so more novice teams can quickly adopt best practices and glean value from the tool. In this FigJam I've abstracted each tool&apos;s current structure, limitations, and provided my own proposal for a more scalable solution.
+                  After analyzing the high level architecture of Braintrust and LangSmith, it seems that both focus on single/siloed-team enablement. Neither tools allow for core elements like Evaluators, Company metrics, or Prompt structures to be reused or templatetized so more novice teams can quickly adopt best practices and glean value from the tool. In this FigJam I've abstracted each tool&apos;s current structure, limitations, and provided my own proposal for a more scalable solution.{" "}
+                  <ExternalTextLink href="https://www.figma.com/board/bNWDIHhae8N4BMmwGgCBLr/LangSmith---Braintrust-Architecture-Evaluation?node-id=0-1&t=V9j8EVGsr3cjdALm-1">
+                    See link to FigJam
+                  </ExternalTextLink>
                 </p>
               </div>
             </RevealOnScroll>
