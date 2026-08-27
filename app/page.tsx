@@ -47,6 +47,18 @@ const sections = [
     ],
   },
   {
+    id: "langchain-alt",
+    title: "LangChain Alt",
+    company: "Intelligence",
+    cta: "See Prototype",
+    href: "/intelligence",
+    body: [
+      "AI development/LLMops tools like LangSmith and Braintrust have experienced concentrated hyper growth at the expense of thoughtful UX.",
+      "In addition to a myriad of unexpected interactions, layouts, and circular workflows, the fundamental issue I want to highlight is product hierarchy and information architecture.",
+      "There is an opportunity to learn from what has enabled these tools to succeed, and where they could continue to improve. In both tools, teams are forced to build their evaluators, metrics, and frameworks in siloes, resulting an enormous amount of rework and eventual disconnect.",
+    ],
+  },
+  {
     id: "query-builder",
     title: "Query Builder",
     company: "Mixpanel",
@@ -77,28 +89,35 @@ const heroCards = [
     section: sections[0],
     label: "Connected TV",
     image: "/prototype-index/hero-cards/connected-tv.png",
-    rotation: -8,
+    rotation: -9,
     y: 7,
   },
   {
     section: sections[1],
     label: "Campaign Planner",
     image: "/prototype-index/hero-cards/campaign-planner.png",
-    rotation: -2,
+    rotation: -4,
     y: -3,
   },
   {
     section: sections[2],
-    label: "Query Builder",
-    image: "/prototype-index/hero-cards/query-builder.png",
-    rotation: 3,
-    y: 1,
+    label: "LangChain Alt",
+    image: "/prototype-index/hero-cards/langchain-alt.png",
+    rotation: 0,
+    y: -5,
   },
   {
     section: sections[3],
+    label: "Query Builder",
+    image: "/prototype-index/hero-cards/query-builder.png",
+    rotation: 4,
+    y: 1,
+  },
+  {
+    section: sections[4],
     label: "Dashboard",
     image: "/prototype-index/hero-cards/dashboard-architecture.png",
-    rotation: 6,
+    rotation: 8,
     y: 5,
   },
 ] as const;
@@ -115,7 +134,8 @@ const avatarSrc: Record<AvatarColor, string> = {
 const avatarColorOrder: AvatarColor[] = ["black", "blue", "red", "white"];
 
 const sectionAvatarMap: { id: string; color: AvatarColor }[] = [
-  { id: "campaign-planner", color: "blue" },
+  { id: "campaign-planner", color: "red" },
+  { id: "langchain-alt", color: "blue" },
   { id: "query-builder", color: "red" },
   { id: "dashboard-architecture", color: "white" },
 ];
@@ -308,7 +328,9 @@ function HeroCardNav() {
                 }}
                 style={{ zIndex: heroCards.length - index }}
               >
-                <span className="block aspect-[175/274] overflow-hidden rounded-[10px] bg-white shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
+                <span className={`block aspect-[175/274] overflow-hidden rounded-[10px] bg-white shadow-[0_18px_60px_rgba(0,0,0,0.28)] ${
+                  card.section.id === "langchain-alt" ? "ring-[0.5px] ring-white/[0.15]" : ""
+                }`}>
                   <img
                     src={card.image}
                     alt=""
@@ -327,7 +349,7 @@ function HeroCardNav() {
                     lineHeight: bodyStyle.lineHeight,
                   }}
                 >
-                  {card.label} <span className="font-bold">•</span> {card.section.company}
+                  {card.label}{card.section.id !== "langchain-alt" && <>{" "}<span className="font-bold">•</span> {card.section.company}</>}
                 </span>
               </motion.a>
             );
@@ -690,6 +712,96 @@ export default function HomePage() {
           <SectionIntro section={sections[2]} />
 
           <figure className="mx-auto mt-24 max-w-[540px]">
+            <RevealOnScroll variant="media">
+              <ImageBlock
+                src="/prototype-index/langchain-alt/hero-full.png"
+                alt="Intelligence platform full view with three-panel drill-down."
+              />
+            </RevealOnScroll>
+            <RevealOnScroll variant="text">
+              <div
+                className="mx-auto mt-6 max-w-[540px] space-y-[26px]"
+                style={{
+                  color: bodyMutedColor,
+                  fontFamily: bodyStyle.fontFamily,
+                  fontSize: bodyStyle.size,
+                  fontWeight: bodyStyle.weight,
+                  letterSpacing: bodyStyle.letterSpacing,
+                  lineHeight: bodyStyle.lineHeight,
+                }}
+              >
+                <p>
+                  Above you'll see my high level take on a LangSmith redesign. Workspace and Project selections are now top-level navigation elements.
+                </p>
+                <p>
+                  The layout offers both clarity and focus. Workspace and project selections are top nav elements while the left navigation acts as the anchor for the three-panel drill down encouraging interactivity to dive deep in the weeds without getting lost.
+                </p>
+              </div>
+            </RevealOnScroll>
+          </figure>
+
+          <figure className="mx-auto mt-12 max-w-[540px]">
+            <RevealOnScroll variant="media">
+              <MediaFrame>
+                <ImageBlock
+                  src="/prototype-index/langchain-alt/filler.png"
+                  alt="Hand-drawn notebook diagram of methods for understanding agents."
+                />
+              </MediaFrame>
+            </RevealOnScroll>
+            <RevealOnScroll variant="text">
+              <div
+                className="mx-auto mt-6 max-w-[540px]"
+                style={{
+                  color: bodyMutedColor,
+                  fontFamily: bodyStyle.fontFamily,
+                  fontSize: bodyStyle.size,
+                  fontWeight: bodyStyle.weight,
+                  letterSpacing: bodyStyle.letterSpacing,
+                  lineHeight: bodyStyle.lineHeight,
+                }}
+              >
+                <p>
+                  The core purpose of these tools is to help teams understand their agents. These tools should be able to tell teams when and why their agent goes awry, and offer a way to proactively prevent drift as improvements ship, new models get incorporated, and user behavior changes.
+                </p>
+              </div>
+            </RevealOnScroll>
+          </figure>
+
+          <figure className="mx-auto mt-12 max-w-[540px]">
+            <RevealOnScroll variant="media">
+              <MediaFrame>
+                <ImageBlock
+                  src="/prototype-index/langchain-alt/figjam.png"
+                  alt="FigJam diagram comparing LangSmith and Braintrust architecture with a proposed scalable solution."
+                />
+              </MediaFrame>
+            </RevealOnScroll>
+            <RevealOnScroll variant="text">
+              <div
+                className="mx-auto mt-6 max-w-[540px] space-y-[26px]"
+                style={{
+                  color: bodyMutedColor,
+                  fontFamily: bodyStyle.fontFamily,
+                  fontSize: bodyStyle.size,
+                  fontWeight: bodyStyle.weight,
+                  letterSpacing: bodyStyle.letterSpacing,
+                  lineHeight: bodyStyle.lineHeight,
+                }}
+              >
+                <p>
+                  After analyzing the high level architecture of Braintrust and LangSmith, it seems that both focus on single/siloed-team enablement. Neither tools allow for core elements like Evaluators, Company metrics, or Prompt structures to be reused or templatetized so more novice teams can quickly adopt best practices and glean value from the tool. In this FigJam I've abstracted each tool&apos;s current structure, limitations, and provided my own proposal for a more scalable solution.
+                </p>
+              </div>
+            </RevealOnScroll>
+          </figure>
+
+        </section>
+
+        <section className="mt-48">
+          <SectionIntro section={sections[3]} />
+
+          <figure className="mx-auto mt-24 max-w-[540px]">
             <RevealOnScroll variant="text">
               <Caption>
                 A unified query structure across all report types, revealing complexity progressively as users work through inputs specific to each report.
@@ -753,7 +865,7 @@ export default function HomePage() {
         </section>
 
         <section className="mt-48">
-          <SectionIntro section={sections[3]} />
+          <SectionIntro section={sections[4]} />
 
           <figure className="mx-auto mt-24 max-w-[536px]">
             <RevealOnScroll variant="media">
