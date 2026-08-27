@@ -1,11 +1,18 @@
 "use client";
 
+import { CursorClick, X } from "@phosphor-icons/react";
+
 export type TabId = "Home" | "Traces" | "Evaluations" | "Datasets" | "Experiments" | "Playground" | "Settings";
 
 interface NavItem {
   id: TabId;
   label: string;
   icon: React.ReactNode;
+}
+
+export interface MinimizedAgent {
+  id: string;
+  name: string;
 }
 
 const topItems: NavItem[] = [
@@ -35,16 +42,14 @@ const topItems: NavItem[] = [
   },
 ];
 
-const bottomItems: NavItem[] = [
-  {
-    id: "Settings", label: "Settings",
-    icon: <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="2.5" stroke="currentColor" strokeWidth="1.2" fill="none" /><path d="M7.5 1v1.5M7.5 12.5V14M1 7.5h1.5M12.5 7.5H14M2.9 2.9l1.06 1.06M11.04 11.04l1.06 1.06M2.9 12.1l1.06-1.06M11.04 3.96l1.06-1.06" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /></svg>,
-  },
-];
-
 interface SideNavProps {
   active: TabId;
   onChange: (tab: TabId) => void;
+  onAgentClick: () => void;
+  agentActive: boolean;
+  minimizedAgents: MinimizedAgent[];
+  onRestoreAgent: (id: string) => void;
+  onDeleteAgent: (id: string) => void;
 }
 
 function NavButton({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick: () => void }) {
@@ -63,18 +68,38 @@ function NavButton({ item, isActive, onClick }: { item: NavItem; isActive: boole
   );
 }
 
-export function SideNav({ active, onChange }: SideNavProps) {
+export function SideNav({ active, onChange, onAgentClick, agentActive, minimizedAgents, onRestoreAgent, onDeleteAgent }: SideNavProps) {
   return (
-    <div className="flex h-full w-[148px] shrink-0 flex-col rounded-xl bg-[hsl(var(--panel-surface))] px-2 py-2">
-      <div className="flex flex-1 flex-col gap-0.5">
+    <div className="flex h-full w-[164px] shrink-0 flex-col rounded-xl bg-[hsl(var(--panel-surface))] px-2 py-2">
+      <div className="flex flex-col gap-0.5">
         {topItems.map((item) => (
           <NavButton key={item.id} item={item} isActive={active === item.id} onClick={() => onChange(item.id)} />
         ))}
       </div>
-      <div className="flex flex-col gap-0.5">
-        {bottomItems.map((item) => (
-          <NavButton key={item.id} item={item} isActive={active === item.id} onClick={() => onChange(item.id)} />
+      <div className="mt-auto flex flex-col gap-0.5 pt-3">
+        {minimizedAgents.map((agent) => (
+          <div key={agent.id} className="group flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-foreground">
+            <span className="shrink-0"><CursorClick size={12} weight="bold" /></span>
+            <button onClick={() => onRestoreAgent(agent.id)} className="flex-1 truncate text-left">{agent.name}</button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onDeleteAgent(agent.id); }}
+              className="hidden shrink-0 text-muted-foreground hover:text-foreground group-hover:block"
+            >
+              <X size={10} weight="bold" />
+            </button>
+          </div>
         ))}
+        <button
+          onClick={onAgentClick}
+          className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[12px] transition-colors ${
+            agentActive
+              ? "bg-white/[0.06] text-foreground"
+              : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground"
+          }`}
+        >
+          <span className="shrink-0"><CursorClick size={14} weight="bold" /></span>
+          <span>Agent</span>
+        </button>
       </div>
     </div>
   );

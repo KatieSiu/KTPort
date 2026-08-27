@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PanelProvider } from "@/features/intelligence/lib/panel-context";
+import { TargetingProvider } from "@/features/intelligence/lib/targeting-context";
 import { AppShell } from "@/features/intelligence/components/shell/AppShell";
 import type { TabId } from "@/features/intelligence/components/shell/SideNav";
 import { PanelStack } from "@/features/intelligence/components/panels/PanelStack";
@@ -9,6 +10,7 @@ import { MetricCards } from "@/features/intelligence/components/traces/MetricCar
 import { ThreadTable } from "@/features/intelligence/components/traces/ThreadTable";
 import { ThreadDetailPanel } from "@/features/intelligence/components/traces/ThreadDetailPanel";
 import { RunDetailPanel } from "@/features/intelligence/components/traces/RunDetailPanel";
+import { TargetOverlay } from "@/features/intelligence/components/shell/TargetOverlay";
 import {
   OverviewGhost,
   DatasetsGhost,
@@ -85,9 +87,12 @@ export default function IntelligencePage() {
 
   return (
     <PanelProvider>
-      <AppShell activeTab={activeTab} onTabChange={setActiveTab}>
-        <TabContent tab={activeTab} />
-      </AppShell>
+      <TargetingProvider>
+        <AppShell activeTab={activeTab} onTabChange={setActiveTab}>
+          <TabContent tab={activeTab} />
+        </AppShell>
+        <TargetOverlay />
+      </TargetingProvider>
     </PanelProvider>
   );
 }

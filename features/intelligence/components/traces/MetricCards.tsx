@@ -34,7 +34,7 @@ function SparklineSvg({ trend, positive }: { trend: number[]; positive: boolean 
 
 function SparklineCard({ label, value, trend, change, positive }: typeof mockMetrics[number]) {
   return (
-    <div className="flex min-w-[140px] flex-1 flex-col gap-1.5 rounded-lg bg-white/[0.03] p-3">
+    <div data-targetable="metric" data-target-label={`${label}: ${value}`} className="flex min-w-[140px] flex-1 flex-col gap-1.5 rounded-lg bg-white/[0.03] p-3">
       <span className="text-[11px] text-muted-foreground">{label}</span>
       <div className="flex items-end justify-between">
         <span className="text-lg font-semibold text-foreground">{value}</span>
@@ -69,7 +69,7 @@ export function MetricCards() {
         ))}
       </div>
       {isOverflowing && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[hsl(var(--panel-surface))] to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-10" style={{ background: "linear-gradient(to left, hsl(var(--panel-surface)) 0%, transparent 100%)" }} />
       )}
     </div>
   );
