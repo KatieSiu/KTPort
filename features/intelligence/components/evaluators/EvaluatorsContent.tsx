@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Resize } from "@phosphor-icons/react";
+import { Resize, ArrowUp } from "@phosphor-icons/react";
 import { PanelHeader, EmojiChip } from "../panels/PanelHeader";
 
 interface Evaluator {
@@ -172,29 +172,61 @@ function CalibrationChart({ history }: { history: { version: string; score: numb
 }
 
 /* ── Vibe-coded slider ── */
-function VibeSlider({ value, min = 0, max = 100, suffix = "" }: { value: number; min?: number; max?: number; suffix?: string }) {
+function VibeSlider({
+  value,
+  min = 0,
+  max = 100,
+  suffix = "",
+  onChange,
+}: {
+  value: number;
+  min?: number;
+  max?: number;
+  suffix?: string;
+  onChange?: (value: number) => void;
+}) {
   const pct = ((value - min) / (max - min)) * 100;
   return (
-    <div className="relative h-7 w-full overflow-hidden rounded-lg border border-white/[0.06] bg-white/[0.015]">
+    <div className={`relative h-7 w-full overflow-hidden rounded-lg border bg-white/[0.015] ${onChange ? "border-white/[0.10]" : "border-white/[0.06]"}`}>
       <div className="absolute inset-y-0 left-0 bg-white/[0.06]" style={{ width: `${pct}%` }} />
       <div
         className="absolute top-[4px] bottom-[4px] w-[4px] rounded-[2px] bg-white/40"
         style={{ left: `calc(${pct}% - 2px)` }}
       />
-      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-medium text-foreground/80">
+      <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-medium text-foreground/80">
         {value}{suffix}
       </span>
+      {onChange && (
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        />
+      )}
     </div>
   );
 }
 
 /* ── Segmented control ── */
-function SegmentedControl({ options, active }: { options: string[]; active: string }) {
+function SegmentedControl({
+  options,
+  active,
+  onChange,
+}: {
+  options: string[];
+  active: string;
+  onChange?: (value: string) => void;
+}) {
   return (
-    <div className="flex h-7 items-center overflow-hidden rounded-lg border border-white/[0.06] bg-white/[0.015]">
+    <div className={`flex h-7 items-center overflow-hidden rounded-lg border bg-white/[0.015] ${onChange ? "border-white/[0.10]" : "border-white/[0.06]"}`}>
       {options.map((opt) => (
         <button
           key={opt}
+          type="button"
+          onClick={() => onChange?.(opt)}
           className={`flex h-full flex-1 items-center justify-center px-3 text-[11px] font-medium transition-colors ${
             opt === active ? "bg-white/[0.06] text-foreground" : "text-muted-foreground hover:text-foreground"
           }`}
@@ -218,10 +250,239 @@ function ReadOnlySelect({ value }: { value: string }) {
   );
 }
 
-/* ── Section wrapper ── */
-function Section({ icon, title, description, children, locked = false }: { icon: string; title: string; description?: string; children: React.ReactNode; locked?: boolean }) {
+function EditableSelect({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
   return (
-    <div className="flex flex-col gap-7">
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-7 w-full appearance-none rounded-lg border border-white/[0.10] bg-white/[0.015] px-2.5 pr-6 text-[11px] text-foreground/80 outline-none"
+      >
+        {options.map((opt) => (
+          <option key={opt} value={opt} className="bg-[hsl(var(--panel-surface))]">
+            {opt}
+          </option>
+        ))}
+      </select>
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground">
+        <path d="M3 4L5 6L7 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
+}
+
+const PROMPT_LINE = 20;
+const PROMPT_PAD = 12;
+
+function PromptEditor({
+  value,
+  onChange,
+  textareaRef,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+}) {
+  const [caretLine, setCaretLine] = useState(1);
+  const [format, setFormat] = useState("Text");
+  const lines = value.length === 0 ? 1 : value.split("\n").length;
+  const gutterWidth = Math.max(2, String(lines).length);
+  const editorHeight = Math.max(280, lines * PROMPT_LINE + PROMPT_PAD * 2);
+
+  const syncCaret = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    setCaretLine(value.slice(0, el.selectionStart).split("\n").length || 1);
+  };
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-white/[0.12] bg-[#111111]">
+      <div className="flex h-8 items-center border-b border-white/[0.06] px-1.5">
+        <div className="relative">
+          <select
+            value={format}
+            onChange={(e) => setFormat(e.target.value)}
+            className="h-6 appearance-none rounded-md bg-transparent pl-2 pr-5 text-[11px] text-muted-foreground outline-none hover:bg-white/[0.04] hover:text-foreground"
+          >
+            <option value="Text" className="bg-[hsl(var(--panel-surface))]">Text</option>
+            <option value="Markdown" className="bg-[hsl(var(--panel-surface))]">Markdown</option>
+          </select>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <path d="M3 4L5 6L7 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+      <div className="dark-scrollbar relative max-h-[420px] overflow-auto">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bg-blue-500/[0.08]"
+          style={{ top: PROMPT_PAD + (caretLine - 1) * PROMPT_LINE, height: PROMPT_LINE }}
+        />
+        <div className="relative flex" style={{ minHeight: editorHeight }}>
+          <div
+            aria-hidden
+            className="select-none border-r border-white/[0.06] bg-white/[0.02] pt-3 text-right font-mono text-[11px] leading-5"
+            style={{ width: `${gutterWidth + 2.25}ch` }}
+          >
+            {Array.from({ length: lines }, (_, i) => (
+              <div
+                key={i}
+                className={`px-2 ${i + 1 === caretLine ? "text-foreground/55" : "text-muted-foreground/40"}`}
+                style={{ height: PROMPT_LINE }}
+              >
+                {i + 1}
+              </div>
+            ))}
+          </div>
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyUp={syncCaret}
+            onKeyDown={syncCaret}
+            onClick={syncCaret}
+            onSelect={syncCaret}
+            onFocus={syncCaret}
+            wrap="off"
+            spellCheck={false}
+            className="flex-1 resize-none overflow-x-auto whitespace-pre bg-transparent px-3 py-3 font-mono text-[11px] leading-5 text-foreground/85 outline-none caret-blue-400"
+            style={{ height: editorHeight }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const AGENT_MODELS = ["ChatGPT", "Sonnet 4.0", "GPT-4o", "Gemini 2.5"];
+
+function PromptAgent() {
+  const [messages, setMessages] = useState<{ role: "user" | "agent"; content: string }[]>([]);
+  const [input, setInput] = useState("");
+  const [waiting, setWaiting] = useState(false);
+  const [model, setModel] = useState(AGENT_MODELS[0]);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const resizeInput = (el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  };
+
+  useEffect(() => {
+    resizeInput(inputRef.current);
+  }, [input]);
+
+  const reply = (q: string) => {
+    const lower = q.toLowerCase();
+    if (lower.includes("strict") || lower.includes("threshold") || lower.includes("harsh")) {
+      return "This prompt is moderately strict: it fails the whole output on a single contradiction. If you want fewer false negatives, require two unsupported claims before scoring 0.0, and keep the rest of the CoT steps.";
+    }
+    if (lower.includes("suggest") || lower.includes("improve") || lower.includes("change") || lower.includes("rewrite")) {
+      return "I'd add one constraint: every claim must quote a supporting span from RETRIEVED CONTEXT. That usually lifts groundedness without changing the rest of the recipe. I can draft that into the prompt if you want.";
+    }
+    if (lower.includes("what") || lower.includes("does") || lower.includes("explain")) {
+      return "This judge extracts claims from MODEL OUTPUT, checks each against RETRIEVED CONTEXT, and scores 0.0 if any claim contradicts. The CoT block is required before the numeric score so you can audit failures.";
+    }
+    return "I can explain this prompt, suggest a rewrite, or tighten a step. Ask about a specific line, or tell me the failure mode you're seeing.";
+  };
+
+  const send = () => {
+    const q = input.trim();
+    if (!q || waiting) return;
+    setInput("");
+    requestAnimationFrame(() => resizeInput(inputRef.current));
+    setMessages((prev) => [...prev, { role: "user", content: q }]);
+    setWaiting(true);
+    window.setTimeout(() => {
+      setMessages((prev) => [...prev, { role: "agent", content: reply(q) }]);
+      setWaiting(false);
+    }, 500);
+  };
+
+  const hasThread = messages.length > 0 || waiting;
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      {hasThread && (
+        <div className="dark-scrollbar flex max-h-[200px] flex-col gap-2 overflow-y-auto">
+          {messages.map((msg, i) => (
+            <div key={i} className={msg.role === "user" ? "flex justify-end" : ""}>
+              <div className={`max-w-[90%] rounded-lg px-3 py-2 text-[12px] leading-relaxed text-foreground ${msg.role === "user" ? "bg-blue-500/[0.08]" : "bg-white/[0.03]"}`}>
+                {msg.content}
+              </div>
+            </div>
+          ))}
+          {waiting && (
+            <div className="inline-flex items-center gap-1 rounded-lg bg-white/[0.03] px-3 py-2">
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "0ms" }} />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "150ms" }} />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "300ms" }} />
+            </div>
+          )}
+        </div>
+      )}
+      <div className="flex flex-col rounded-xl border border-white/[0.12] bg-white/[0.04]">
+        <textarea
+          ref={inputRef}
+          value={input}
+          rows={1}
+          onChange={(e) => {
+            setInput(e.target.value);
+            resizeInput(e.target);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              send();
+            }
+          }}
+          placeholder="Ask about the instructions…"
+          className="dark-scrollbar max-h-[120px] min-h-[40px] w-full resize-none bg-transparent px-3.5 pt-3 text-[12px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/50"
+        />
+        <div className="flex items-center justify-between gap-2 px-2 pb-2 pt-1">
+          <div className="relative">
+            <select
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              className="h-7 appearance-none rounded-full bg-transparent pl-2.5 pr-6 text-[11px] text-muted-foreground outline-none hover:text-foreground"
+            >
+              {AGENT_MODELS.map((opt) => (
+                <option key={opt} value={opt} className="bg-[hsl(var(--panel-surface))]">
+                  {opt}
+                </option>
+              ))}
+            </select>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <path d="M3 4L5 6L7 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <button
+            type="button"
+            onClick={send}
+            disabled={!input.trim() || waiting}
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground text-background disabled:opacity-40"
+          >
+            <ArrowUp size={14} weight="bold" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Section wrapper ── */
+function Section({ icon, title, description, children, locked = false, compact = false }: { icon: string; title: string; description?: string; children: React.ReactNode; locked?: boolean; compact?: boolean }) {
+  return (
+    <div className={`flex flex-col ${compact ? "gap-3" : "gap-7"}`}>
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <span className="text-[13px] font-semibold text-foreground">{title}</span>
@@ -561,7 +822,65 @@ const evaluatorProfiles: Record<string, EvaluatorProfile> = {
   },
 };
 
+function HeaderAction({
+  children,
+  onClick,
+  tone = "default",
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  tone?: "default" | "primary" | "danger";
+}) {
+  const toneClass =
+    tone === "primary"
+      ? "text-foreground hover:bg-white/[0.08] hover:text-foreground"
+      : tone === "danger"
+        ? "text-muted-foreground hover:bg-white/[0.06] hover:text-red-400"
+        : "text-muted-foreground hover:bg-white/[0.06] hover:text-foreground";
+  return (
+    <button
+      onClick={onClick}
+      className={`inline-flex h-6 items-center rounded-md px-2 text-[11px] font-medium transition-colors ${toneClass}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+const FAIL_ACTIONS = ["Block production release", "Flag for human review", "Log warning"];
+const JUDGE_MODELS = ["gpt-4o", "gpt-4o-mini", "claude-3-5-sonnet"];
+
 function EvaluatorDetailPanel({ evaluator, onClose }: { evaluator: Evaluator | null; onClose: () => void }) {
+  const [editMode, setEditMode] = useState(false);
+  const [draftPrompt, setDraftPrompt] = useState("");
+  const [draftParams, setDraftParams] = useState({ passThreshold: 0, strictness: "Medium" as "Low" | "Medium" | "High", failAction: "", sampleRate: 0 });
+  const [draftModel, setDraftModel] = useState("");
+  const promptRef = useRef<HTMLTextAreaElement>(null);
+
+  const resetDraft = useCallback((ev: Evaluator | null) => {
+    if (!ev) return;
+    const p = evaluatorProfiles[ev.id];
+    if (!p) return;
+    setDraftPrompt(p.rubric);
+    setDraftParams(p.runParams);
+    setDraftModel(ev.judgeModel === "—" ? "N/A" : ev.judgeModel);
+  }, []);
+
+  useEffect(() => {
+    setEditMode(false);
+    const ev = mockEvaluators.find((e) => e.id === evaluator?.id) ?? null;
+    resetDraft(ev);
+  }, [evaluator?.id, resetDraft]);
+
+  useEffect(() => {
+    if (!editMode) return;
+    const el = promptRef.current;
+    if (!el) return;
+    el.focus();
+    const len = el.value.length;
+    el.setSelectionRange(len, len);
+  }, [editMode]);
+
   if (!evaluator) return null;
 
   const profile = evaluatorProfiles[evaluator.id];
@@ -571,106 +890,192 @@ function EvaluatorDetailPanel({ evaluator, onClose }: { evaluator: Evaluator | n
   const rp = profile.runParams;
   const kappaLabel = cal.kappa >= 0.8 ? "High" : cal.kappa >= 0.6 ? "Moderate" : "Fair";
   const latestVersion = cal.history[cal.history.length - 1]?.version ?? "v1.0";
+  const canEdit = evaluator.category === "llm";
+
+  const exitEdit = (reset = false) => {
+    if (reset) resetDraft(evaluator);
+    setEditMode(false);
+  };
+
+  const handleClose = () => {
+    exitEdit(true);
+    onClose();
+  };
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <PanelHeader
-        onClose={onClose}
+        onClose={handleClose}
         title={evaluator.name}
         leading={<EmojiChip emoji={evaluator.emoji} />}
-        subtitle="View only · Contact admin to edit"
+        subtitle={editMode ? "Draft" : canEdit ? undefined : "View only · Contact admin to edit"}
+        trailing={
+          canEdit ? (
+            editMode ? (
+              <div className="flex items-center gap-0.5">
+                <HeaderAction onClick={() => exitEdit(false)}>Save</HeaderAction>
+                <HeaderAction tone="primary" onClick={() => exitEdit(false)}>Set as active</HeaderAction>
+                <HeaderAction tone="danger" onClick={() => exitEdit(true)}>Discard</HeaderAction>
+              </div>
+            ) : (
+              <HeaderAction tone="primary" onClick={() => setEditMode(true)}>Edit</HeaderAction>
+            )
+          ) : undefined
+        }
       />
 
       {/* Scrollable body */}
       <div className="dark-scrollbar flex-1 overflow-y-auto px-5 py-5">
         <div className="flex flex-col gap-12">
 
-          {/* ── Overview + Calibration ── */}
-          <div className="rounded-lg bg-white/[0.02] px-3 py-3">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="flex flex-col gap-2">
-              <div className="flex flex-col gap-1.5 text-[11px]">
-                <div className="flex justify-between"><span className="text-muted-foreground">Metric</span><span className="text-foreground/80">{evaluator.metric}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span className="text-foreground/80">{evaluator.type}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Judge model</span><span className="text-foreground/80">{evaluator.judgeModel}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Calibration</span><CalibrationBadge value={evaluator.calibration} /></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Scope</span><span className="text-foreground/80">{evaluator.scope}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Status</span><span className="text-foreground/80">{evaluator.status}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Version</span><span className="text-foreground/80">{latestVersion}</span></div>
-              </div>
-            </div>
-
-            <div className="flex min-w-0 flex-col gap-2">
-              <div className="flex flex-col gap-1.5 text-[11px]">
-                <div className="flex justify-between gap-4"><span className="text-muted-foreground">Cohen&apos;s Kappa</span><span className="text-foreground/80">{cal.kappa.toFixed(2)} <span className="text-emerald-400">({kappaLabel})</span></span></div>
-                <div className="flex justify-between gap-4"><span className="text-muted-foreground">False Positive Rate</span><span className="text-foreground/80">{cal.fpr}%</span></div>
-                <div className="flex justify-between gap-4"><span className="text-muted-foreground">False Negative Rate</span><span className="text-foreground/80">{cal.fnr}%</span></div>
-                <div className="flex justify-between gap-4"><span className="text-muted-foreground">Benchmark suite</span><span className="truncate text-foreground/80">{cal.benchmarkSuite}</span></div>
-              </div>
-              <div className="mt-2">
-                <CalibrationChart history={cal.history} />
-              </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="h-px bg-white/[0.06]" />
-
-          {/* ── Golden Fields ── */}
-          <Section icon="🔗" title="Golden Fields" description="Map these fields to dataset columns for scoring." locked>
-            <div className="flex flex-col gap-2.5">
-              {profile.goldenFields.map((gf) => (
-                <div key={gf.field} className="flex items-center justify-between gap-4">
-                  <span className="shrink-0 text-[11px] text-muted-foreground">{gf.field}</span>
-                  <div className="w-[55%]">
-                    <ReadOnlySelect value={gf.mapping} />
+          {!editMode && (
+            <>
+              <div className="rounded-lg bg-white/[0.02] px-3 py-3">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1.5 text-[11px]">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Metric</span><span className="text-foreground/80">{evaluator.metric}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span className="text-foreground/80">{evaluator.type}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Judge model</span><span className="text-foreground/80">{evaluator.judgeModel}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Calibration</span><CalibrationBadge value={evaluator.calibration} /></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Scope</span><span className="text-foreground/80">{evaluator.scope}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Status</span><span className="text-foreground/80">{evaluator.status}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Version</span><span className="text-foreground/80">{latestVersion}</span></div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </Section>
 
-          <div className="h-px bg-white/[0.06]" />
+                <div className="flex min-w-0 flex-col gap-2">
+                  <div className="flex flex-col gap-1.5 text-[11px]">
+                    <div className="flex justify-between gap-4"><span className="text-muted-foreground">Cohen&apos;s Kappa</span><span className="text-foreground/80">{cal.kappa.toFixed(2)} <span className="text-emerald-400">({kappaLabel})</span></span></div>
+                    <div className="flex justify-between gap-4"><span className="text-muted-foreground">False Positive Rate</span><span className="text-foreground/80">{cal.fpr}%</span></div>
+                    <div className="flex justify-between gap-4"><span className="text-muted-foreground">False Negative Rate</span><span className="text-foreground/80">{cal.fnr}%</span></div>
+                    <div className="flex justify-between gap-4"><span className="text-muted-foreground">Benchmark suite</span><span className="truncate text-foreground/80">{cal.benchmarkSuite}</span></div>
+                  </div>
+                  <div className="mt-2">
+                    <CalibrationChart history={cal.history} />
+                  </div>
+                  </div>
+                </div>
+              </div>
 
-          {/* ── Rubric ── */}
+              <div className="h-px bg-white/[0.06]" />
+
+              <Section icon="🔗" title="Golden Fields" description="Map these fields to dataset columns for scoring." locked>
+                <div className="flex flex-col gap-2.5">
+                  {profile.goldenFields.map((gf) => (
+                    <div key={gf.field} className="flex items-center justify-between gap-4">
+                      <span className="shrink-0 text-[11px] text-muted-foreground">{gf.field}</span>
+                      <div className="w-[55%]">
+                        <ReadOnlySelect value={gf.mapping} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+
+              <div className="h-px bg-white/[0.06]" />
+            </>
+          )}
+
+          <div className={editMode ? "flex flex-col gap-4" : "contents"}>
+          {editMode && (
+            <Section
+              icon="⚙️"
+              title="Edit Run Parameters"
+              description="These apply to this draft. They do not change the live evaluator until you set a version as active."
+              compact
+            >
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="shrink-0 text-[11px] text-muted-foreground">Pass Threshold</span>
+                  <div className="w-[55%]">
+                    <VibeSlider value={draftParams.passThreshold} suffix="%" onChange={(v) => setDraftParams((p) => ({ ...p, passThreshold: v }))} />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="shrink-0 text-[11px] text-muted-foreground">Strictness</span>
+                  <div className="w-[55%]">
+                    <SegmentedControl
+                      options={["Low", "Medium", "High"]}
+                      active={draftParams.strictness}
+                      onChange={(v) => setDraftParams((p) => ({ ...p, strictness: v as "Low" | "Medium" | "High" }))}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="shrink-0 text-[11px] text-muted-foreground">Fail Action</span>
+                  <div className="w-[55%]">
+                    <EditableSelect value={draftParams.failAction} options={FAIL_ACTIONS} onChange={(v) => setDraftParams((p) => ({ ...p, failAction: v }))} />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="shrink-0 text-[11px] text-muted-foreground">Model</span>
+                  <div className="w-[55%]">
+                    <EditableSelect value={draftModel} options={JUDGE_MODELS} onChange={setDraftModel} />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="shrink-0 text-[11px] text-muted-foreground">Sample Rate</span>
+                  <div className="w-[55%]">
+                    <VibeSlider value={draftParams.sampleRate} suffix="%" onChange={(v) => setDraftParams((p) => ({ ...p, sampleRate: v }))} />
+                  </div>
+                </div>
+              </div>
+            </Section>
+          )}
+
+          {editMode && <div className="h-px bg-white/[0.06]" />}
+
           <Section
             icon="📄"
-            title={evaluator.category === "llm" ? "Evaluator Rubric & Chain-of-Thought Instructions" : "Evaluation Logic"}
-            description={evaluator.category === "llm" ? "Prompt sent to the judge model when scoring." : "Programmatic logic used to compute this metric."}
-            locked
+            title={editMode ? "Edit Evaluator instructions" : evaluator.category === "llm" ? "Evaluator Rubric & Chain-of-Thought Instructions" : "Evaluation Logic"}
+            description={editMode ? "Draft prompt sent to the judge model when scoring." : evaluator.category === "llm" ? "Prompt sent to the judge model when scoring." : "Programmatic logic used to compute this metric."}
+            locked={!editMode}
+            compact={editMode}
           >
-            <div className="rounded-lg border border-white/[0.06] bg-white/[0.015] px-3.5 py-3">
-              <pre className="whitespace-pre-wrap text-[11px] leading-[1.6] text-foreground/70">{profile.rubric}</pre>
-            </div>
+            {editMode ? (
+              <div className="flex flex-col gap-2">
+                <PromptEditor value={draftPrompt} onChange={setDraftPrompt} textareaRef={promptRef} />
+                <PromptAgent key={evaluator.id} />
+              </div>
+            ) : (
+              <div className="rounded-lg border border-white/[0.06] bg-white/[0.015] px-3.5 py-3">
+                <pre className="whitespace-pre-wrap text-[11px] leading-[1.6] text-foreground/70">{profile.rubric}</pre>
+              </div>
+            )}
           </Section>
+          </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          {!editMode && (
+            <>
+              <div className="h-px bg-white/[0.06]" />
 
-          {/* ── Run Parameters ── */}
-          <Section icon="⚙️" title="Run Parameters" description="Configured by your admin for dataset evaluation runs." locked>
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between gap-4">
-                <span className="shrink-0 text-[11px] text-muted-foreground">Pass Threshold</span>
-                <div className="w-[55%]"><VibeSlider value={rp.passThreshold} suffix="%" /></div>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="shrink-0 text-[11px] text-muted-foreground">Strictness</span>
-                <div className="w-[55%]"><SegmentedControl options={["Low", "Medium", "High"]} active={rp.strictness} /></div>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="shrink-0 text-[11px] text-muted-foreground">Fail Action</span>
-                <div className="w-[55%]"><ReadOnlySelect value={rp.failAction} /></div>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="shrink-0 text-[11px] text-muted-foreground">Model</span>
-                <div className="w-[55%]"><ReadOnlySelect value={evaluator.judgeModel === "—" ? "N/A" : evaluator.judgeModel} /></div>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="shrink-0 text-[11px] text-muted-foreground">Sample Rate</span>
-                <div className="w-[55%]"><VibeSlider value={rp.sampleRate} suffix="%" /></div>
-              </div>
-            </div>
-          </Section>
+              <Section icon="⚙️" title="Run Parameters" description="Configured by your admin for dataset evaluation runs." locked>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="shrink-0 text-[11px] text-muted-foreground">Pass Threshold</span>
+                    <div className="w-[55%]"><VibeSlider value={rp.passThreshold} suffix="%" /></div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="shrink-0 text-[11px] text-muted-foreground">Strictness</span>
+                    <div className="w-[55%]"><SegmentedControl options={["Low", "Medium", "High"]} active={rp.strictness} /></div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="shrink-0 text-[11px] text-muted-foreground">Fail Action</span>
+                    <div className="w-[55%]"><ReadOnlySelect value={rp.failAction} /></div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="shrink-0 text-[11px] text-muted-foreground">Model</span>
+                    <div className="w-[55%]"><ReadOnlySelect value={evaluator.judgeModel === "—" ? "N/A" : evaluator.judgeModel} /></div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="shrink-0 text-[11px] text-muted-foreground">Sample Rate</span>
+                    <div className="w-[55%]"><VibeSlider value={rp.sampleRate} suffix="%" /></div>
+                  </div>
+                </div>
+              </Section>
+            </>
+          )}
 
         </div>
       </div>
