@@ -24,7 +24,18 @@ export function AccountPopover({ onClose }: AccountPopoverProps) {
   return (
     <div className="flex w-[280px] flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[hsl(var(--panel-surface))] shadow-2xl">
       <div className="flex items-center gap-3 border-b border-white/[0.06] px-3 py-3">
-        <img src="https://picsum.photos/seed/secret-project/72/72" alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+        <svg width="36" height="36" viewBox="0 0 24 24" className="h-9 w-9 shrink-0 rounded-full">
+          <defs>
+            <linearGradient id="av-bg-pop" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#2d2b3a" />
+              <stop offset="100%" stopColor="#3b3654" />
+            </linearGradient>
+          </defs>
+          <rect width="24" height="24" rx="12" fill="url(#av-bg-pop)" />
+          <path d="M4 17 Q8 6 12 13 Q16 20 20 8" stroke="#7c3aed" strokeWidth="1.4" fill="none" opacity="0.9" strokeLinecap="round" />
+          <path d="M6 19 Q10 10 14 15 Q18 20 22 6" stroke="#ec4899" strokeWidth="1" fill="none" opacity="0.5" strokeLinecap="round" />
+          <path d="M2 15 Q7 8 11 11 Q15 14 19 5" stroke="#06b6d4" strokeWidth="0.8" fill="none" opacity="0.4" strokeLinecap="round" />
+        </svg>
         <div className="flex flex-col">
           <span className="text-[13px] font-medium text-foreground">Katie Siu</span>
           <span className="text-[11px] text-muted-foreground">katie@acmecorp.com</span>
@@ -38,12 +49,12 @@ export function AccountPopover({ onClose }: AccountPopoverProps) {
             key={org.name}
             className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[12px] transition-colors hover:bg-white/[0.04]"
           >
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/[0.06] text-[10px] font-semibold text-foreground">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/[0.06] text-[11px] font-semibold text-foreground">
               {org.name[0]}
             </div>
             <div className="flex flex-1 flex-col items-start">
               <span className="text-[12px] text-foreground">{org.name}</span>
-              <span className="text-[10px] text-muted-foreground">{org.role}</span>
+              <span className="text-[11px] text-muted-foreground">{org.role}</span>
             </div>
             {org.active && <Check size={14} weight="bold" className="text-emerald-400" />}
           </button>

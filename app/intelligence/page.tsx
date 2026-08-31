@@ -6,6 +6,7 @@ import { TargetingProvider } from "@/features/intelligence/lib/targeting-context
 import { AppShell } from "@/features/intelligence/components/shell/AppShell";
 import type { TabId } from "@/features/intelligence/components/shell/SideNav";
 import { PanelStack } from "@/features/intelligence/components/panels/PanelStack";
+import { TracesHeader } from "@/features/intelligence/components/traces/TracesHeader";
 import { MetricCards } from "@/features/intelligence/components/traces/MetricCards";
 import { ThreadTable } from "@/features/intelligence/components/traces/ThreadTable";
 import { ThreadDetailPanel } from "@/features/intelligence/components/traces/ThreadDetailPanel";
@@ -13,17 +14,19 @@ import { RunDetailPanel } from "@/features/intelligence/components/traces/RunDet
 import { TargetOverlay } from "@/features/intelligence/components/shell/TargetOverlay";
 import {
   OverviewGhost,
-  DatasetsGhost,
   ExperimentsGhost,
-  EvaluationsGhost,
   PlaygroundGhost,
-  SettingsGhost,
 } from "@/features/intelligence/components/traces/GhostView";
+import { DatasetsContent } from "@/features/intelligence/components/datasets/DatasetsContent";
+import { EvaluatorsContent } from "@/features/intelligence/components/evaluators/EvaluatorsContent";
+import { ExperimentsContent } from "@/features/intelligence/components/experiments/ExperimentsContent";
+import { HomeContent } from "@/features/intelligence/components/home/HomeContent";
 
 function TracesContent() {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <MetricCards />
+      <TracesHeader />
       <ThreadTable />
     </div>
   );
@@ -51,32 +54,23 @@ function TabContent({ tab }: { tab: TabId }) {
   }
 
   if (tab === "Home") {
-    return (
-      <SinglePanel>
-        <MetricCards />
-        <OverviewGhost />
-      </SinglePanel>
-    );
+    return <HomeContent />;
   }
 
-  if (tab === "Evaluations") {
-    return <SinglePanel><EvaluationsGhost /></SinglePanel>;
+  if (tab === "Evaluators") {
+    return <EvaluatorsContent />;
   }
 
   if (tab === "Datasets") {
-    return <SinglePanel><DatasetsGhost /></SinglePanel>;
+    return <DatasetsContent />;
   }
 
-  if (tab === "Experiments") {
-    return <SinglePanel><ExperimentsGhost /></SinglePanel>;
-  }
-
-  if (tab === "Playground") {
+  if (tab === "Prompts") {
     return <SinglePanel><PlaygroundGhost /></SinglePanel>;
   }
 
-  if (tab === "Settings") {
-    return <SinglePanel><SettingsGhost /></SinglePanel>;
+  if (tab === "Experiments") {
+    return <ExperimentsContent />;
   }
 
   return null;

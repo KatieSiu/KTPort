@@ -7,7 +7,7 @@ function GhostBlock({ height = 10, width = "100%" }: { height?: number; width?: 
 export function OverviewGhost() {
   return (
     <div className="flex h-full flex-col overflow-hidden p-4">
-      <h2 className="text-[13px] font-medium text-foreground">Overview</h2>
+      <h2 className="text-[13px] font-semibold text-foreground">Overview</h2>
       <p className="mb-4 text-[11px] text-muted-foreground">Health summary and recent activity</p>
 
       <div className="mb-5 grid grid-cols-3 gap-2">
@@ -55,12 +55,12 @@ export function DatasetsGhost() {
     <div className="flex h-full flex-col overflow-hidden p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-[13px] font-medium text-foreground">Datasets</h2>
+          <h2 className="text-[13px] font-semibold text-foreground">Datasets</h2>
           <p className="text-[11px] text-muted-foreground">Versioned test case collections for offline evaluation</p>
         </div>
         <div className="rounded-md bg-white/[0.06] px-2.5 py-1 text-[11px] text-muted-foreground">+ New dataset</div>
       </div>
-      <div className="flex-1 overflow-auto">
+      <div className="dark-scrollbar flex-1 overflow-auto">
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-white/[0.06] text-left text-[11px] text-muted-foreground">
@@ -103,12 +103,12 @@ export function ExperimentsGhost() {
     <div className="flex h-full flex-col overflow-hidden p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-[13px] font-medium text-foreground">Experiments</h2>
+          <h2 className="text-[13px] font-semibold text-foreground">Experiments</h2>
           <p className="text-[11px] text-muted-foreground">Compare evaluation runs across prompt and model changes</p>
         </div>
         <div className="rounded-md bg-white/[0.06] px-2.5 py-1 text-[11px] text-muted-foreground">+ Run experiment</div>
       </div>
-      <div className="flex-1 overflow-auto">
+      <div className="dark-scrollbar flex-1 overflow-auto">
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-white/[0.06] text-left text-[11px] text-muted-foreground">
@@ -157,12 +157,12 @@ export function EvaluationsGhost() {
     <div className="flex h-full flex-col overflow-hidden p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-[13px] font-medium text-foreground">Evaluations</h2>
+          <h2 className="text-[13px] font-semibold text-foreground">Evaluations</h2>
           <p className="text-[11px] text-muted-foreground">Online and offline scorers monitoring agent quality</p>
         </div>
         <div className="rounded-md bg-white/[0.06] px-2.5 py-1 text-[11px] text-muted-foreground">+ New evaluator</div>
       </div>
-      <div className="flex-1 overflow-auto">
+      <div className="dark-scrollbar flex-1 overflow-auto">
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-white/[0.06] text-left text-[11px] text-muted-foreground">
@@ -200,7 +200,7 @@ export function EvaluationsGhost() {
 export function SettingsGhost() {
   return (
     <div className="flex h-full flex-col overflow-hidden p-4">
-      <h2 className="text-[13px] font-medium text-foreground">Settings</h2>
+      <h2 className="text-[13px] font-semibold text-foreground">Settings</h2>
       <p className="mb-4 text-[11px] text-muted-foreground">Project configuration and integrations</p>
       <div className="flex flex-col gap-3">
         {["General", "API keys", "Team members", "Automations", "Integrations", "Data retention"].map((section) => (
@@ -215,52 +215,48 @@ export function SettingsGhost() {
 }
 
 export function PlaygroundGhost() {
-  const prompts = [
-    { name: "Support agent system", version: "v12", model: "gpt-4o", edited: "2 hours ago", editor: "sarah.chen", tag: "prod" },
-    { name: "Support agent system", version: "v13", model: "gpt-4o", edited: "45 min ago", editor: "sarah.chen", tag: "staging" },
-    { name: "Tool selection rules", version: "v4", model: "gpt-4o", edited: "3 days ago", editor: "priya.patel", tag: "prod" },
-    { name: "Refund policy context", version: "v2", model: "gpt-4o", edited: "1 week ago", editor: "mike.johnson", tag: "prod" },
-    { name: "Escalation criteria", version: "v3", model: "gpt-4o-mini", edited: "5 days ago", editor: "emma.watson", tag: "prod" },
-  ];
-
   return (
-    <div className="flex h-full flex-col overflow-hidden p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <div>
-          <h2 className="text-[13px] font-medium text-foreground">Playground</h2>
-          <p className="text-[11px] text-muted-foreground">Prototype and version prompt templates</p>
+    <div className="flex h-full flex-col overflow-hidden px-4 pt-3">
+      {/* Ghost header */}
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex flex-col gap-1.5">
+          <GhostBlock height={14} width={120} />
+          <GhostBlock height={10} width={220} />
         </div>
-        <div className="rounded-md bg-white/[0.06] px-2.5 py-1 text-[11px] text-muted-foreground">+ New prompt</div>
+        <GhostBlock height={28} width={100} />
       </div>
-      <div className="flex-1 overflow-auto">
-        <table className="w-full text-[13px]">
-          <thead>
-            <tr className="border-b border-white/[0.06] text-left text-[11px] text-muted-foreground">
-              <th className="py-2 font-medium">Name</th>
-              <th className="py-2 font-medium">Version</th>
-              <th className="py-2 font-medium">Model</th>
-              <th className="py-2 font-medium">Last edited</th>
-              <th className="py-2 font-medium">Editor</th>
-              <th className="py-2 font-medium">Tag</th>
-            </tr>
-          </thead>
-          <tbody>
-            {prompts.map((p, i) => (
-              <tr key={`${p.name}-${p.version}`} className="border-b border-white/[0.04]">
-                <td className="py-2 font-medium text-foreground">{p.name}</td>
-                <td className="py-2"><span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[11px] text-muted-foreground">{p.version}</span></td>
-                <td className="py-2"><span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[11px] text-muted-foreground">{p.model}</span></td>
-                <td className="py-2 text-muted-foreground">{p.edited}</td>
-                <td className="py-2 text-muted-foreground">{p.editor}</td>
-                <td className="py-2">
-                  <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${p.tag === "prod" ? "bg-emerald-500/10 text-emerald-400" : "bg-blue-400/10 text-blue-400"}`}>
-                    {p.tag}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      {/* Ghost filter bar */}
+      <div className="mb-3 flex items-center gap-3">
+        <GhostBlock height={24} width={90} />
+        <GhostBlock height={10} width={60} />
+        <div className="flex-1" />
+        <GhostBlock height={24} width={80} />
+        <GhostBlock height={24} width={52} />
+      </div>
+
+      {/* Ghost table header */}
+      <div className="mb-2 flex items-center gap-4 border-b border-white/[0.04] pb-2">
+        <GhostBlock height={8} width={100} />
+        <GhostBlock height={8} width={60} />
+        <GhostBlock height={8} width={50} />
+        <GhostBlock height={8} width={80} />
+        <GhostBlock height={8} width={60} />
+        <GhostBlock height={8} width={40} />
+      </div>
+
+      {/* Ghost table rows */}
+      <div className="flex flex-col gap-3">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4">
+            <GhostBlock height={10} width={90 + (i % 3) * 20} />
+            <GhostBlock height={10} width={36} />
+            <GhostBlock height={10} width={50} />
+            <GhostBlock height={10} width={70} />
+            <GhostBlock height={10} width={55 + (i % 2) * 15} />
+            <GhostBlock height={10} width={36} />
+          </div>
+        ))}
       </div>
     </div>
   );

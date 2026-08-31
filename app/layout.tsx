@@ -4,7 +4,7 @@ import "./globals.css";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-dm-sans",
   weight: ["400", "500", "600", "700"],
 });
 
@@ -21,8 +21,8 @@ const ebGaramond = EB_Garamond({
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-inter",
-  weight: ["500"],
+  variable: "--font-sans",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -38,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} ${robotoMono.variable} ${ebGaramond.variable} ${inter.variable}`}
+      className={`${inter.variable} ${dmSans.variable} ${robotoMono.variable} ${ebGaramond.variable}`}
     >
       <body className="min-h-screen font-sans antialiased">{children}</body>
     </html>

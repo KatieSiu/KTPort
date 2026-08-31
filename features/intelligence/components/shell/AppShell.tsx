@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MagnifyingGlass } from "@phosphor-icons/react";
+
 import { SideNav, type TabId, type MinimizedAgent } from "./SideNav";
 import { AgentChat, type AgentMessage } from "./AgentChat";
 import { AccountPopover } from "./AccountPopover";
@@ -114,7 +114,7 @@ export function AppShell({ children, activeTab, onTabChange }: AppShellProps) {
           <TrafficLights />
 
           <button
-            onClick={() => setNavOpen((v) => !v)}
+            onClick={() => { setNavOpen((v) => !v); setProjectMenuOpen(false); }}
             className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -158,62 +158,47 @@ export function AppShell({ children, activeTab, onTabChange }: AppShellProps) {
             </button>
           </div>
 
-          <div ref={projectMenuRef} className="relative">
-            <button
-              onClick={() => setProjectMenuOpen((v) => !v)}
-              className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[14px] font-medium text-foreground transition-colors hover:bg-white/[0.06]"
-            >
-              <span>Secret Project</span>
-              <svg width="12" height="12" viewBox="0 0 10 10" fill="none">
-                <path d="M3 4L5 6L7 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            <AnimatePresence>
-              {projectMenuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -4, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -4, scale: 0.96 }}
-                  transition={{ duration: 0.15, ease }}
-                  className="absolute left-0 top-9 z-50 w-[220px] overflow-hidden rounded-xl border border-white/[0.08] bg-[hsl(var(--panel-surface))] shadow-2xl"
-                >
-                  <div className="px-2 py-2">
-                    {[
-                      { name: "Secret Project", active: true },
-                      { name: "Maps Redesign", active: false },
-                      { name: "Siri Intents v3", active: false },
-                      { name: "Checkout Flow", active: false },
-                    ].map((p) => (
-                      <button
-                        key={p.name}
-                        onClick={() => setProjectMenuOpen(false)}
-                        className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[12px] transition-colors ${
-                          p.active ? "bg-white/[0.06] text-foreground" : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground"
-                        }`}
-                      >
-                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-white/[0.06] text-[9px] font-semibold text-foreground">
-                          {p.name[0]}
-                        </div>
-                        <span className="truncate">{p.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="border-t border-white/[0.06] px-2 py-2">
-                    <button className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[12px] text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-foreground">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[14px]">+</span>
-                      <span>New project</span>
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          {!navOpen && (
+            <div ref={projectMenuRef} className="relative">
+              <button
+                onClick={() => setProjectMenuOpen((v) => !v)}
+                className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[14px] font-medium text-foreground transition-colors hover:bg-white/[0.06]"
+              >
+                <span>{activeTab}</span>
+                <svg width="12" height="12" viewBox="0 0 10 10" fill="none">
+                  <path d="M3 4L5 6L7 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <AnimatePresence>
+                {projectMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.96 }}
+                    transition={{ duration: 0.15, ease }}
+                    className="absolute left-0 top-9 z-50 w-[180px] overflow-hidden rounded-xl border border-white/[0.08] bg-[hsl(var(--panel-surface))] shadow-2xl"
+                  >
+                    <div className="px-2 py-2">
+                      {(["Home", "Traces", "Evaluators", "Datasets", "Prompts", "Experiments"] as const).map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => { navigate(tab); setProjectMenuOpen(false); }}
+                          className={`flex w-full items-center rounded-lg px-2.5 py-1.5 text-[12px] transition-colors ${
+                            activeTab === tab ? "bg-white/[0.06] text-foreground" : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground"
+                          }`}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5">
-          <button className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground">
-            <MagnifyingGlass size={16} weight="bold" />
-          </button>
           <div ref={accountMenuRef} className="relative">
             <button
               onClick={() => setAccountOpen((v) => !v)}
@@ -221,7 +206,18 @@ export function AppShell({ children, activeTab, onTabChange }: AppShellProps) {
                 accountOpen ? "ring-2 ring-white" : "ring-0"
               }`}
             >
-              <img src="https://picsum.photos/seed/secret-project/48/48" alt="" className="h-6 w-6 rounded-full object-cover" />
+              <svg width="24" height="24" viewBox="0 0 24 24" className="shrink-0 rounded-full">
+                <defs>
+                  <linearGradient id="av-bg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#2d2b3a" />
+                    <stop offset="100%" stopColor="#3b3654" />
+                  </linearGradient>
+                </defs>
+                <rect width="24" height="24" rx="12" fill="url(#av-bg)" />
+                <path d="M4 17 Q8 6 12 13 Q16 20 20 8" stroke="#7c3aed" strokeWidth="1.4" fill="none" opacity="0.9" strokeLinecap="round" />
+                <path d="M6 19 Q10 10 14 15 Q18 20 22 6" stroke="#ec4899" strokeWidth="1" fill="none" opacity="0.5" strokeLinecap="round" />
+                <path d="M2 15 Q7 8 11 11 Q15 14 19 5" stroke="#06b6d4" strokeWidth="0.8" fill="none" opacity="0.4" strokeLinecap="round" />
+              </svg>
             </button>
             <AnimatePresence>
               {accountOpen && (

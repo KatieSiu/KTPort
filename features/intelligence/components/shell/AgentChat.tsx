@@ -121,7 +121,7 @@ export function AgentChat({ onClose, onMinimize }: AgentChatProps) {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col overflow-y-auto px-3 py-2">
+      <div className="dark-scrollbar flex flex-1 flex-col overflow-y-auto px-3 py-2">
         {messages.length === 0 && phase === "idle" && !state.target && (
           <div className="flex flex-1 items-center justify-center text-center">
             <p className="max-w-[240px] text-[13px] leading-relaxed text-muted-foreground">
@@ -134,7 +134,7 @@ export function AgentChat({ onClose, onMinimize }: AgentChatProps) {
           <div className="flex flex-1 items-end pb-2">
             <div className="ml-auto max-w-[85%] rounded-lg bg-white/[0.06] px-3 py-2">
               <div className="mb-1 rounded border border-blue-400/20 bg-blue-400/10 px-2 py-1">
-                <span className="text-[10px] font-medium text-blue-400">{state.target.type}</span>
+                <span className="text-[11px] font-medium text-blue-400">{state.target.type}</span>
                 <span className="ml-1.5 text-[11px] text-foreground/70">{state.target.label}</span>
               </div>
               <p className="text-[13px] text-foreground">{questionTypewriter.displayed}<span className="animate-pulse">|</span></p>
@@ -149,7 +149,7 @@ export function AgentChat({ onClose, onMinimize }: AgentChatProps) {
             }`}>
               {msg.role === "user" && state.target && (
                 <div className="mb-1 rounded border border-blue-400/20 bg-blue-400/10 px-2 py-1">
-                  <span className="text-[10px] font-medium text-blue-400">{state.target.type}</span>
+                  <span className="text-[11px] font-medium text-blue-400">{state.target.type}</span>
                   <span className="ml-1.5 text-[11px] text-foreground/70">{state.target.label}</span>
                 </div>
               )}

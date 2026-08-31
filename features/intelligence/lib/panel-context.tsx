@@ -5,6 +5,7 @@ import { createContext, useCallback, useContext, useState, type ReactNode } from
 interface PanelState {
   threadId: string | null;
   runId: string | null;
+  l3Mode: "run" | "evaluator";
 }
 
 interface PanelContextValue {
@@ -17,7 +18,7 @@ interface PanelContextValue {
 }
 
 const PanelContext = createContext<PanelContextValue>({
-  state: { threadId: null, runId: null },
+  state: { threadId: null, runId: null, l3Mode: "run" },
   openThread: () => {},
   openRun: () => {},
   closeThread: () => {},
@@ -26,26 +27,27 @@ const PanelContext = createContext<PanelContextValue>({
 });
 
 export function PanelProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<PanelState>({ threadId: null, runId: null });
+  const [state, setState] = useState<PanelState>({ threadId: null, runId: null, l3Mode: "run" });
 
   const openThread = useCallback((id: string) => {
     setState((prev) => ({ ...prev, threadId: id }));
   }, []);
 
   const openRun = useCallback((id: string) => {
-    setState((prev) => ({ ...prev, runId: id }));
+    const isEval = id.startsWith("eval_");
+    setState((prev) => ({ ...prev, runId: id, l3Mode: isEval ? "evaluator" : "run" }));
   }, []);
 
   const closeThread = useCallback(() => {
-    setState({ threadId: null, runId: null });
+    setState({ threadId: null, runId: null, l3Mode: "run" });
   }, []);
 
   const closeRun = useCallback(() => {
-    setState((prev) => ({ ...prev, runId: null }));
+    setState((prev) => ({ ...prev, runId: null, l3Mode: "run" }));
   }, []);
 
   const closeAll = useCallback(() => {
-    setState({ threadId: null, runId: null });
+    setState({ threadId: null, runId: null, l3Mode: "run" });
   }, []);
 
   return (

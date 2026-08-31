@@ -3,7 +3,21 @@
 import type { Message } from "../../lib/mock-data";
 import { usePanels } from "../../lib/panel-context";
 
-export function ChatMessage({ message }: { message: Message }) {
+function SpanTag({ type }: { type: string }) {
+  return (
+    <span className="inline-flex items-center rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+      {type}
+    </span>
+  );
+}
+
+function formatDuration(latency: string): string {
+  const ms = parseInt(latency, 10);
+  if (isNaN(ms)) return latency;
+  return `${(ms / 1000).toFixed(2)}s`;
+}
+
+export function ChatMessage({ message, prevRole, nextRole }: { message: Message; prevRole?: string; nextRole?: string }) {
   const { openRun } = usePanels();
   const isClickable = !!message.runId;
 
@@ -12,25 +26,31 @@ export function ChatMessage({ message }: { message: Message }) {
   };
 
   if (message.role === "human") {
+    const isFirstFromUser = prevRole !== "human";
     return (
-      <div className="px-1 py-1">
-        <p className="text-[13px] leading-relaxed text-foreground">{message.content}</p>
+      <div className={`my-3 ml-12 ${isFirstFromUser ? "rounded-lg rounded-tr-none" : "rounded-lg"} bg-blue-500/[0.08] px-3 py-2.5`}>
+        <p className="text-[13px] font-[400] leading-relaxed text-foreground/85">{message.content}</p>
       </div>
     );
   }
 
   if (message.role === "tool_call") {
+    const isStacked = prevRole === "tool_call" || prevRole === "tool_response";
+    const isFirstAgent = !isStacked && prevRole !== "assistant";
     return (
       <div
         onClick={handleClick}
-        className={`my-1.5 flex items-center gap-2 rounded-lg border border-white/[0.06] px-3 py-2.5 ${
-          isClickable ? "cursor-pointer transition-colors hover:bg-white/[0.03]" : ""
+        className={`${isStacked ? "mt-1" : "mt-3"} mb-0 mr-12 flex items-center gap-2 ${isFirstAgent ? "rounded-lg rounded-tl-none" : "rounded-lg"} border border-white/[0.06] bg-white/[0.03] px-3 py-2 ${
+          isClickable ? "cursor-pointer transition-colors hover:border-white/[0.10] hover:bg-white/[0.05]" : ""
         }`}
       >
-        <span className="font-mono text-[11px] text-foreground">{message.toolName || "tool"}</span>
-        {message.latency && (
-          <span className="ml-auto font-mono text-[11px] text-muted-foreground">{message.latency}</span>
-        )}
+        <span className="min-w-0 truncate font-mono text-[11px] text-foreground">{message.toolName || "tool"}</span>
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          <SpanTag type={message.spanType || "tool"} />
+          {message.latency && (
+            <span className="font-mono text-[11px] text-muted-foreground">{formatDuration(message.latency)}</span>
+          )}
+        </div>
       </div>
     );
   }
@@ -39,18 +59,19 @@ export function ChatMessage({ message }: { message: Message }) {
     return null;
   }
 
+  const followsTool = prevRole === "tool_call" || prevRole === "tool_response";
+  const isFirstAgent = prevRole === "human" || prevRole === undefined;
   return (
     <div
       onClick={handleClick}
-      className={`my-1.5 flex items-start justify-between gap-2.5 rounded-lg border border-white/[0.06] px-3 py-2.5 ${isClickable ? "cursor-pointer transition-colors hover:bg-white/[0.03]" : ""}`}
+      className={`${followsTool ? "mt-1" : "mt-3"} mb-3 mr-12 ${isFirstAgent ? "rounded-lg rounded-tl-none" : "rounded-lg"} border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 ${isClickable ? "cursor-pointer transition-colors hover:border-white/[0.10] hover:bg-white/[0.05]" : ""}`}
     >
-      <div className="flex-1">
-        <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-foreground">{message.content}</p>
-        <span className="mt-0.5 block text-[11px] text-muted-foreground">{message.timestamp}</span>
-      </div>
-      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-[9px] font-medium text-emerald-400">
-        AI
-      </div>
+      <p className="whitespace-pre-wrap text-[13px] font-[400] leading-relaxed text-foreground/85">{message.content}</p>
+      {message.latency && (
+        <div className="mt-1.5 flex justify-end">
+          <span className="font-mono text-[11px] text-muted-foreground">{formatDuration(message.latency)}</span>
+        </div>
+      )}
     </div>
   );
 }
