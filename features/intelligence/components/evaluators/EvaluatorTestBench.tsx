@@ -407,8 +407,12 @@ function ResultRow({
 
 function EvaluatorTestBench({
   evaluatorName,
+  runRequest = 0,
+  onPhaseChange,
 }: {
   evaluatorName: string;
+  runRequest?: number;
+  onPhaseChange?: (phase: "idle" | "running" | "done") => void;
 }) {
   const [source, setSource] = useState<Source>("dataset");
   const [datasetId, setDatasetId] = useState(DEMO_DATASETS[0].id);
@@ -428,6 +432,10 @@ function EvaluatorTestBench({
   useEffect(() => {
     clearRun();
   }, [source, datasetId, evaluatorName]);
+
+  useEffect(() => {
+    onPhaseChange?.(phase);
+  }, [phase, onPhaseChange]);
 
   const canRun =
     source === "dataset" ||
@@ -472,6 +480,11 @@ function EvaluatorTestBench({
     }, 650);
   };
 
+  useEffect(() => {
+    if (runRequest < 1) return;
+    run();
+  }, [runRequest]);
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <PanelHeader
@@ -481,7 +494,7 @@ function EvaluatorTestBench({
             type="button"
             onClick={run}
             disabled={!canRun || phase === "running"}
-            className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md bg-foreground px-2.5 text-[11px] font-medium text-background disabled:opacity-40"
+            className="inline-flex h-6 items-center gap-1.5 rounded-md px-2 text-[11px] font-medium text-foreground transition-colors hover:bg-white/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
           >
             <Play size={11} weight="fill" />
             {phase === "running" ? "Running…" : "Run"}

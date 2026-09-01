@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Resize, ArrowUp, PencilSimple } from "@phosphor-icons/react";
+import { Resize, ArrowUp, PencilSimple, Play } from "@phosphor-icons/react";
 import { PanelHeader, EmojiChip } from "../panels/PanelHeader";
 import { EvaluatorTestBench } from "./EvaluatorTestBench";
 
@@ -481,7 +481,7 @@ function PromptAgent() {
 }
 
 /* ── Section wrapper ── */
-function Section({ icon, title, description, children, locked = false, compact = false }: { icon: string; title: string; description?: string; children: React.ReactNode; locked?: boolean; compact?: boolean }) {
+function Section({ icon, title, description, children, locked = false, compact = false, action }: { icon: string; title: string; description?: string; children: React.ReactNode; locked?: boolean; compact?: boolean; action?: React.ReactNode }) {
   return (
     <div className={`flex flex-col ${compact ? "gap-3" : "gap-7"}`}>
       <div className="flex flex-col gap-1">
@@ -493,6 +493,7 @@ function Section({ icon, title, description, children, locked = false, compact =
               <path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
             </svg>
           )}
+          {action && <div className="ml-auto shrink-0">{action}</div>}
         </div>
         {description && (
           <p className="text-[11px] leading-relaxed text-muted-foreground">{description}</p>
@@ -827,10 +828,12 @@ function HeaderAction({
   children,
   onClick,
   tone = "default",
+  disabled = false,
 }: {
   children: ReactNode;
   onClick: () => void;
   tone?: "default" | "primary" | "danger";
+  disabled?: boolean;
 }) {
   const toneClass =
     tone === "primary"
@@ -840,8 +843,10 @@ function HeaderAction({
         : "text-muted-foreground hover:bg-white/[0.06] hover:text-foreground";
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`inline-flex h-6 items-center rounded-md px-2 text-[11px] font-medium transition-colors ${toneClass}`}
+      disabled={disabled}
+      className={`inline-flex h-6 items-center gap-1.5 rounded-md px-2 text-[11px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-40 ${toneClass}`}
     >
       {children}
     </button>
@@ -857,16 +862,21 @@ function EvaluatorDetailPanel({
   editMode,
   onEnterEdit,
   onExitEdit,
+  onRun,
+  runPhase,
 }: {
   evaluator: Evaluator | null;
   onClose: () => void;
   editMode: boolean;
   onEnterEdit: () => void;
   onExitEdit: () => void;
+  onRun: () => void;
+  runPhase: "idle" | "running" | "done";
 }) {
   const [draftPrompt, setDraftPrompt] = useState("");
   const [draftParams, setDraftParams] = useState({ passThreshold: 0, strictness: "Medium" as "Low" | "Medium" | "High", failAction: "", sampleRate: 0 });
   const [draftModel, setDraftModel] = useState("");
+  const [selectedVersion, setSelectedVersion] = useState("v1.0");
   const promptRef = useRef<HTMLTextAreaElement>(null);
 
   const resetDraft = useCallback((ev: Evaluator | null) => {
@@ -876,6 +886,8 @@ function EvaluatorDetailPanel({
     setDraftPrompt(p.rubric);
     setDraftParams(p.runParams);
     setDraftModel(ev.judgeModel === "—" ? "N/A" : ev.judgeModel);
+    const hist = p.calibration.history;
+    setSelectedVersion(hist[hist.length - 1]?.version ?? "v1.0");
   }, []);
 
   useEffect(() => {
@@ -916,9 +928,9 @@ function EvaluatorDetailPanel({
     <div className="flex h-full flex-col overflow-hidden">
       <PanelHeader
         onClose={handleClose}
-        title={evaluator.name}
-        leading={<EmojiChip emoji={evaluator.emoji} />}
-        subtitle={editMode ? "Draft" : canEdit ? undefined : "View only · Contact admin to edit"}
+        title={editMode ? "Edit" : evaluator.name}
+        leading={editMode ? undefined : <EmojiChip emoji={evaluator.emoji} />}
+        subtitle={editMode ? undefined : canEdit ? undefined : "View only · Contact admin to edit"}
         trailing={
           canEdit ? (
             editMode ? (
@@ -941,8 +953,32 @@ function EvaluatorDetailPanel({
         }
       />
 
+      {editMode && (
+        <div className="flex shrink-0 items-center gap-2.5 px-4 pb-3 pt-4">
+          <EmojiChip emoji={evaluator.emoji} />
+          <span className="text-[13px] font-semibold leading-none text-foreground">{evaluator.name}</span>
+          <div className="relative">
+            <select
+              value={selectedVersion}
+              onChange={(e) => setSelectedVersion(e.target.value)}
+              aria-label="Evaluator version"
+              className="h-6 appearance-none rounded-md border border-white/[0.10] bg-white/[0.015] pl-2 pr-5 text-[11px] text-muted-foreground outline-none"
+            >
+              {cal.history.map((h) => (
+                <option key={h.version} value={h.version} className="bg-[hsl(var(--panel-surface))]">
+                  {h.version}
+                </option>
+              ))}
+            </select>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <path d="M3 4L5 6L7 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </div>
+      )}
+
       {/* Scrollable body */}
-      <div className="dark-scrollbar flex-1 overflow-y-auto px-5 py-5">
+      <div className={`dark-scrollbar flex-1 overflow-y-auto px-5 ${editMode ? "pb-5 pt-4" : "py-5"}`}>
         <div className="flex flex-col gap-12">
 
           {!editMode && (
@@ -1061,6 +1097,14 @@ function EvaluatorDetailPanel({
             description={editMode ? "Draft prompt sent to the judge model when scoring." : evaluator.category === "llm" ? "Prompt sent to the judge model when scoring." : "Programmatic logic used to compute this metric."}
             locked={!editMode}
             compact={editMode}
+            action={
+              editMode ? (
+                <HeaderAction tone="primary" onClick={onRun} disabled={runPhase === "running"}>
+                  <Play size={11} weight="fill" />
+                  {runPhase === "running" ? "Running…" : "Run"}
+                </HeaderAction>
+              ) : undefined
+            }
           >
             {editMode ? (
               <div className="flex flex-col gap-2">
@@ -1103,6 +1147,9 @@ function EvaluatorDetailPanel({
 export function EvaluatorsContent() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [l3Open, setL3Open] = useState(false);
+  const [runTick, setRunTick] = useState(0);
+  const [runPhase, setRunPhase] = useState<"idle" | "running" | "done">("idle");
   const hasInteracted = useRef(false);
   const cardRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -1110,7 +1157,7 @@ export function EvaluatorsContent() {
   if (selectedId) hasInteracted.current = true;
 
   const hasL2 = selectedId !== null;
-  const hasL3 = editMode && selectedId !== null;
+  const hasL3 = l3Open && selectedId !== null;
   const selectedEvaluator = hasL2 ? mockEvaluators.find((e) => e.id === selectedId) ?? null : null;
   const shouldAnimate = hasInteracted.current;
   const l1Width = hasL3 ? "28%" : hasL2 ? "50%" : "100%";
@@ -1123,8 +1170,20 @@ export function EvaluatorsContent() {
     { key: "safety", label: "Safety & Compliance", items: mockEvaluators.filter((e) => e.category === "safety") },
   ];
 
+  const closeL3 = useCallback(() => {
+    setL3Open(false);
+    setRunTick(0);
+    setRunPhase("idle");
+  }, []);
+
+  const requestRun = useCallback(() => {
+    setL3Open(true);
+    setRunTick((n) => n + 1);
+  }, []);
+
   const handleSelect = useCallback((id: string) => {
     setEditMode(false);
+    closeL3();
     setSelectedId(id);
     requestAnimationFrame(() => {
       const card = cardRefs.current.get(id);
@@ -1138,7 +1197,7 @@ export function EvaluatorsContent() {
         }
       }
     });
-  }, []);
+  }, [closeL3]);
 
   const setCardRef = useCallback((id: string) => (el: HTMLButtonElement | null) => {
     if (el) cardRefs.current.set(id, el);
@@ -1258,10 +1317,19 @@ export function EvaluatorsContent() {
               <EvaluatorDetailPanel
                 evaluator={selectedEvaluator}
                 editMode={editMode}
-                onEnterEdit={() => setEditMode(true)}
-                onExitEdit={() => setEditMode(false)}
+                onEnterEdit={() => {
+                  closeL3();
+                  setEditMode(true);
+                }}
+                onExitEdit={() => {
+                  setEditMode(false);
+                  closeL3();
+                }}
+                onRun={requestRun}
+                runPhase={runPhase}
                 onClose={() => {
                   setEditMode(false);
+                  closeL3();
                   setSelectedId(null);
                 }}
               />
@@ -1284,6 +1352,8 @@ export function EvaluatorsContent() {
               <EvaluatorTestBench
                 key={selectedEvaluator.id}
                 evaluatorName={selectedEvaluator.name}
+                runRequest={runTick}
+                onPhaseChange={setRunPhase}
               />
             </div>
           </motion.div>
