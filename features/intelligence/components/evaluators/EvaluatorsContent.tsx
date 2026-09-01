@@ -290,7 +290,7 @@ function PromptEditor({
 }: {
   value: string;
   onChange: (value: string) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  textareaRef: React.RefObject<HTMLTextAreaElement>;
 }) {
   const [caretLine, setCaretLine] = useState(1);
   const [format, setFormat] = useState("Text");
