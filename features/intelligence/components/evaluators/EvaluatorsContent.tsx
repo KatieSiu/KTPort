@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Resize, ArrowUp } from "@phosphor-icons/react";
+import { Resize, ArrowUp, PencilSimple } from "@phosphor-icons/react";
 import { PanelHeader, EmojiChip } from "../panels/PanelHeader";
+import { EvaluatorTestBench } from "./EvaluatorTestBench";
 
 interface Evaluator {
   id: string;
@@ -850,8 +851,19 @@ function HeaderAction({
 const FAIL_ACTIONS = ["Block production release", "Flag for human review", "Log warning"];
 const JUDGE_MODELS = ["gpt-4o", "gpt-4o-mini", "claude-3-5-sonnet"];
 
-function EvaluatorDetailPanel({ evaluator, onClose }: { evaluator: Evaluator | null; onClose: () => void }) {
-  const [editMode, setEditMode] = useState(false);
+function EvaluatorDetailPanel({
+  evaluator,
+  onClose,
+  editMode,
+  onEnterEdit,
+  onExitEdit,
+}: {
+  evaluator: Evaluator | null;
+  onClose: () => void;
+  editMode: boolean;
+  onEnterEdit: () => void;
+  onExitEdit: () => void;
+}) {
   const [draftPrompt, setDraftPrompt] = useState("");
   const [draftParams, setDraftParams] = useState({ passThreshold: 0, strictness: "Medium" as "Low" | "Medium" | "High", failAction: "", sampleRate: 0 });
   const [draftModel, setDraftModel] = useState("");
@@ -867,10 +879,13 @@ function EvaluatorDetailPanel({ evaluator, onClose }: { evaluator: Evaluator | n
   }, []);
 
   useEffect(() => {
-    setEditMode(false);
     const ev = mockEvaluators.find((e) => e.id === evaluator?.id) ?? null;
     resetDraft(ev);
   }, [evaluator?.id, resetDraft]);
+
+  useEffect(() => {
+    if (!editMode) resetDraft(evaluator);
+  }, [editMode, evaluator, resetDraft]);
 
   useEffect(() => {
     if (!editMode) return;
@@ -892,13 +907,8 @@ function EvaluatorDetailPanel({ evaluator, onClose }: { evaluator: Evaluator | n
   const latestVersion = cal.history[cal.history.length - 1]?.version ?? "v1.0";
   const canEdit = evaluator.category === "llm";
 
-  const exitEdit = (reset = false) => {
-    if (reset) resetDraft(evaluator);
-    setEditMode(false);
-  };
-
   const handleClose = () => {
-    exitEdit(true);
+    onExitEdit();
     onClose();
   };
 
@@ -913,12 +923,19 @@ function EvaluatorDetailPanel({ evaluator, onClose }: { evaluator: Evaluator | n
           canEdit ? (
             editMode ? (
               <div className="flex items-center gap-0.5">
-                <HeaderAction onClick={() => exitEdit(false)}>Save</HeaderAction>
-                <HeaderAction tone="primary" onClick={() => exitEdit(false)}>Set as active</HeaderAction>
-                <HeaderAction tone="danger" onClick={() => exitEdit(true)}>Discard</HeaderAction>
+                <HeaderAction onClick={onExitEdit}>Save</HeaderAction>
+                <HeaderAction tone="primary" onClick={onExitEdit}>Set as active</HeaderAction>
+                <HeaderAction tone="danger" onClick={onExitEdit}>Discard</HeaderAction>
               </div>
             ) : (
-              <HeaderAction tone="primary" onClick={() => setEditMode(true)}>Edit</HeaderAction>
+              <button
+                type="button"
+                onClick={onEnterEdit}
+                aria-label="Edit"
+                className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground"
+              >
+                <PencilSimple size={13} />
+              </button>
             )
           ) : undefined
         }
@@ -960,16 +977,28 @@ function EvaluatorDetailPanel({ evaluator, onClose }: { evaluator: Evaluator | n
 
               <div className="h-px bg-white/[0.06]" />
 
-              <Section icon="🔗" title="Golden Fields" description="Map these fields to dataset columns for scoring." locked>
-                <div className="flex flex-col gap-2.5">
-                  {profile.goldenFields.map((gf) => (
-                    <div key={gf.field} className="flex items-center justify-between gap-4">
-                      <span className="shrink-0 text-[11px] text-muted-foreground">{gf.field}</span>
-                      <div className="w-[55%]">
-                        <ReadOnlySelect value={gf.mapping} />
-                      </div>
-                    </div>
-                  ))}
+              <Section icon="⚙️" title="Run Parameters" description="Configured by your admin for dataset evaluation runs." locked>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="shrink-0 text-[11px] text-muted-foreground">Pass Threshold</span>
+                    <div className="w-[55%]"><VibeSlider value={rp.passThreshold} suffix="%" /></div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="shrink-0 text-[11px] text-muted-foreground">Strictness</span>
+                    <div className="w-[55%]"><SegmentedControl options={["Low", "Medium", "High"]} active={rp.strictness} /></div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="shrink-0 text-[11px] text-muted-foreground">Fail Action</span>
+                    <div className="w-[55%]"><ReadOnlySelect value={rp.failAction} /></div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="shrink-0 text-[11px] text-muted-foreground">Model</span>
+                    <div className="w-[55%]"><ReadOnlySelect value={evaluator.judgeModel === "—" ? "N/A" : evaluator.judgeModel} /></div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="shrink-0 text-[11px] text-muted-foreground">Sample Rate</span>
+                    <div className="w-[55%]"><VibeSlider value={rp.sampleRate} suffix="%" /></div>
+                  </div>
                 </div>
               </Section>
 
@@ -1050,28 +1079,16 @@ function EvaluatorDetailPanel({ evaluator, onClose }: { evaluator: Evaluator | n
             <>
               <div className="h-px bg-white/[0.06]" />
 
-              <Section icon="⚙️" title="Run Parameters" description="Configured by your admin for dataset evaluation runs." locked>
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="shrink-0 text-[11px] text-muted-foreground">Pass Threshold</span>
-                    <div className="w-[55%]"><VibeSlider value={rp.passThreshold} suffix="%" /></div>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="shrink-0 text-[11px] text-muted-foreground">Strictness</span>
-                    <div className="w-[55%]"><SegmentedControl options={["Low", "Medium", "High"]} active={rp.strictness} /></div>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="shrink-0 text-[11px] text-muted-foreground">Fail Action</span>
-                    <div className="w-[55%]"><ReadOnlySelect value={rp.failAction} /></div>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="shrink-0 text-[11px] text-muted-foreground">Model</span>
-                    <div className="w-[55%]"><ReadOnlySelect value={evaluator.judgeModel === "—" ? "N/A" : evaluator.judgeModel} /></div>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="shrink-0 text-[11px] text-muted-foreground">Sample Rate</span>
-                    <div className="w-[55%]"><VibeSlider value={rp.sampleRate} suffix="%" /></div>
-                  </div>
+              <Section icon="🔗" title="Golden Fields" description="Map these fields to dataset columns for scoring." locked>
+                <div className="flex flex-col gap-2.5">
+                  {profile.goldenFields.map((gf) => (
+                    <div key={gf.field} className="flex items-center justify-between gap-4">
+                      <span className="shrink-0 text-[11px] text-muted-foreground">{gf.field}</span>
+                      <div className="w-[55%]">
+                        <ReadOnlySelect value={gf.mapping} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </Section>
             </>
@@ -1085,6 +1102,7 @@ function EvaluatorDetailPanel({ evaluator, onClose }: { evaluator: Evaluator | n
 
 export function EvaluatorsContent() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
   const hasInteracted = useRef(false);
   const cardRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -1092,8 +1110,11 @@ export function EvaluatorsContent() {
   if (selectedId) hasInteracted.current = true;
 
   const hasL2 = selectedId !== null;
+  const hasL3 = editMode && selectedId !== null;
   const selectedEvaluator = hasL2 ? mockEvaluators.find((e) => e.id === selectedId) ?? null : null;
   const shouldAnimate = hasInteracted.current;
+  const l1Width = hasL3 ? "28%" : hasL2 ? "50%" : "100%";
+  const l2Width = hasL3 ? "36%" : "50%";
 
   const sections = [
     { key: "llm", label: "LLM as Judge", items: mockEvaluators.filter((e) => e.category === "llm") },
@@ -1103,6 +1124,7 @@ export function EvaluatorsContent() {
   ];
 
   const handleSelect = useCallback((id: string) => {
+    setEditMode(false);
     setSelectedId(id);
     requestAnimationFrame(() => {
       const card = cardRefs.current.get(id);
@@ -1198,7 +1220,7 @@ export function EvaluatorsContent() {
     <div className="relative flex h-full w-full overflow-hidden">
       <motion.div
         initial={false}
-        animate={{ width: hasL2 ? "50%" : "100%" }}
+        animate={{ width: l1Width }}
         transition={shouldAnimate ? transition : { duration: 0 }}
         className="h-full shrink-0 overflow-hidden pr-1"
       >
@@ -1210,7 +1232,7 @@ export function EvaluatorsContent() {
                   <h2 className="text-[13px] font-semibold text-foreground">{section.label}</h2>
                   <span className="text-[11px] text-muted-foreground">{section.items.length}</span>
                 </div>
-                <div className={`grid auto-rows-auto gap-2.5 px-4 pb-4 ${hasL2 ? "grid-cols-1 min-[1440px]:grid-cols-2" : "grid-cols-1 min-[1000px]:grid-cols-2 min-[1440px]:grid-cols-3 min-[1800px]:grid-cols-4 min-[2200px]:grid-cols-5"}`}>
+                <div className={`grid auto-rows-auto gap-2.5 px-4 pb-4 ${hasL3 ? "grid-cols-1" : hasL2 ? "grid-cols-1 min-[1440px]:grid-cols-2" : "grid-cols-1 min-[1000px]:grid-cols-2 min-[1440px]:grid-cols-3 min-[1800px]:grid-cols-4 min-[2200px]:grid-cols-5"}`}>
                   {section.items.map((ev) => (
                     <EvaluatorCard key={ev.id} evaluator={ev} isActive={selectedId === ev.id} onClick={() => handleSelect(ev.id)} cardRef={setCardRef(ev.id)} />
                   ))}
@@ -1226,14 +1248,43 @@ export function EvaluatorsContent() {
         {hasL2 && (
           <motion.div
             key="eval-l2"
-            initial={{ x: "100%", width: "50%" }}
-            animate={{ x: 0, width: "50%" }}
+            initial={{ x: "100%", width: l2Width }}
+            animate={{ x: 0, width: l2Width }}
+            exit={{ x: "100%" }}
+            transition={transition}
+            className={`h-full shrink-0 overflow-hidden ${hasL3 ? "px-1" : "pl-1"}`}
+          >
+            <div className="flex h-full flex-col overflow-hidden rounded-xl bg-[hsl(var(--panel-surface))]">
+              <EvaluatorDetailPanel
+                evaluator={selectedEvaluator}
+                editMode={editMode}
+                onEnterEdit={() => setEditMode(true)}
+                onExitEdit={() => setEditMode(false)}
+                onClose={() => {
+                  setEditMode(false);
+                  setSelectedId(null);
+                }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {hasL3 && selectedEvaluator && (
+          <motion.div
+            key="eval-l3"
+            initial={{ x: "100%", width: "36%" }}
+            animate={{ x: 0, width: "36%" }}
             exit={{ x: "100%" }}
             transition={transition}
             className="h-full shrink-0 overflow-hidden pl-1"
           >
             <div className="flex h-full flex-col overflow-hidden rounded-xl bg-[hsl(var(--panel-surface))]">
-              <EvaluatorDetailPanel evaluator={selectedEvaluator} onClose={() => setSelectedId(null)} />
+              <EvaluatorTestBench
+                key={selectedEvaluator.id}
+                evaluatorName={selectedEvaluator.name}
+              />
             </div>
           </motion.div>
         )}

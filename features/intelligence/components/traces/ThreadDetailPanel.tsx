@@ -3,9 +3,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { CaretDown, Copy, ShareNetwork, Plus } from "@phosphor-icons/react";
 import { usePanels } from "../../lib/panel-context";
-import { mockThreads, type EvalMetric } from "../../lib/mock-data";
+import { mockThreads } from "../../lib/mock-data";
 import { ChatMessage } from "./ChatMessage";
 import { PanelHeader, ScoreBadge } from "../panels/PanelHeader";
+import { EvalMetricCard } from "../panels/EvalMetricCard";
 
 function StatusDot({ status }: { status: string }) {
   const color =
@@ -21,51 +22,6 @@ function MetaRow({ label, children }: { label: string; children: React.ReactNode
       <span className="shrink-0 text-[11px] text-muted-foreground">{label}</span>
       <span className="truncate text-[11px] text-foreground/80">{children}</span>
     </div>
-  );
-}
-
-let sparkUid = 0;
-function MiniSparkline({ trend }: { trend: number[] }) {
-  const id = useRef(`eval-spark-${sparkUid++}`);
-  const min = Math.min(...trend);
-  const max = Math.max(...trend);
-  const range = max - min || 1;
-  const w = 48;
-  const h = 16;
-  const pts = trend.map((v, i) => ({
-    x: (i / (trend.length - 1)) * w,
-    y: h - ((v - min) / range) * h,
-  }));
-  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
-  const area = `${line} L${pts[pts.length - 1].x},${h} L${pts[0].x},${h} Z`;
-  const color = "rgb(16,185,129)";
-
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-3 w-10" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id={id.current} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.2" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill={`url(#${id.current})`} />
-      <path d={line} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-    </svg>
-  );
-}
-
-function EvalMetricCard({ metric, onClick }: { metric: EvalMetric; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex min-w-0 flex-col gap-1 overflow-hidden rounded-lg border border-white/[0.06] bg-white/[0.03] px-2.5 py-2 text-left transition-colors hover:border-white/[0.10] hover:bg-white/[0.05]"
-    >
-      <div className="flex w-full items-center justify-between gap-2">
-        <span className="truncate text-[11px] text-muted-foreground">{metric.label}</span>
-        <MiniSparkline trend={metric.trend} />
-      </div>
-      <span className="text-[13px] font-semibold text-foreground">{metric.score.toFixed(2)}</span>
-    </button>
   );
 }
 
@@ -202,7 +158,9 @@ export function ThreadDetailPanel() {
               {thread.evalMetrics.map((em) => (
                 <EvalMetricCard
                   key={em.id}
-                  metric={em}
+                  label={em.label}
+                  value={em.score.toFixed(2)}
+                  trend={em.trend}
                   onClick={() => {
                     if (em.evaluatorId) openRun(`eval_${em.evaluatorId}`);
                   }}

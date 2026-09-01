@@ -3,7 +3,7 @@
 import React from "react";
 
 interface PanelHeaderProps {
-  onClose: () => void;
+  onClose?: () => void;
   title: string;
   leading?: React.ReactNode;
   trailing?: React.ReactNode;
@@ -20,15 +20,19 @@ export function PanelHeader({ onClose, title, leading, trailing, subtitle }: Pan
           <span className="truncate text-[11px] leading-none text-muted-foreground">{subtitle}</span>
         )}
       </div>
-      <div className="flex items-center gap-2">
-        {trailing}
-        <button
-          onClick={onClose}
-          className="flex h-6 w-6 items-center justify-center rounded-md text-[11px] text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground"
-        >
-          &#10005;
-        </button>
-      </div>
+      {(trailing || onClose) && (
+        <div className="flex items-center gap-2">
+          {trailing}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="flex h-6 w-6 items-center justify-center rounded-md text-[11px] text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground"
+            >
+              &#10005;
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
